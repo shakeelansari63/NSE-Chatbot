@@ -1,0 +1,14 @@
+[project]
+name = "nse-chatbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "gradio>=5.49.1",
+    "langchain-mcp-adapters>=0.1.11",
+    "langchain-openai>=0.3.35",
+    "langgraph>=0.6.8",
+    "pydantic-settings>=2.11.0",
+]
