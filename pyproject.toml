@@ -12,3 +12,6 @@ dependencies = [
     "langgraph>=0.6.8",
     "pydantic-settings>=2.11.0",
 ]
+
+[tool.basedpyright]
+ reportUnusedCallResult = false
