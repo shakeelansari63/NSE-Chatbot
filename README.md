@@ -8,8 +8,8 @@ sdk_version: 5.49.1
 Chatbot for NSE related info
 
 ## Requirement
-Need GROQ API key for using LLM Models fro Groq.   
-Add `GROQ_API_KEY=gsk_********` in `.env` 
+Need OPENROUTER API key for using LLM Models from OpenRouter.
+Add `OPENROUTER_API_KEY=gsk_********` in `.env`
 
 ## Deployment
-Add `HF_TOKEN=hf_*****` in `.env` and run `uv run dotenv -f .env run -- uv run gradio deploy` for deploying app to HF Spaces. 
+Add `HF_TOKEN=hf_*****` in `.env` and run `uv run dotenv -f .env run -- uv run gradio deploy` for deploying app to HF Spaces.
