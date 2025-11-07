@@ -66,15 +66,18 @@ with gr.Blocks() as ui:
                         label="LLM Provider",
                     )
                     llm_api_url = gr.Textbox(label="API URL", visible=False)
-                    llm_api_key = gr.Textbox(
-                        label="API Key", type="password", visible=True
-                    )
                     llm_model = gr.Dropdown(
                         choices=get_provider_models("OpenAI"),
                         label="Model",
                         visible=True,
                         allow_custom_value=False,
                     )
+                    llm_api_key = gr.Textbox(
+                        label="API Key",
+                        type="password",
+                        visible=True,
+                    )
+
                 save_llm_detail = gr.Button("Save")
 
             # Based on Provider, show API url field
