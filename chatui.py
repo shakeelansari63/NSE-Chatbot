@@ -1,6 +1,9 @@
+from typing import Any
+
 import gradio as gr
+
+from config import get_provider_models, get_provider_url, set_llm_config
 from graph import get_agent
-from config import set_llm_config
 from messages import langchain_messages_to_openai
 from model import OpenAIMessage
 
@@ -18,6 +21,36 @@ def send_message_to_ui(message: str, history: list[OpenAIMessage]):
     return [*history, OpenAIMessage(role="user", content=message)], ""
 
 
+def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
+    url = get_provider_url(provider)
+    model = get_provider_models(provider)
+
+    # URL Component
+    url_component = gr.Textbox(label="API URL", visible=False, value=url)
+    # Check for Valid URl
+    if not url:
+        url_component = gr.Textbox(label="API URL", visible=True)
+
+    # Model Component
+    model_component = gr.Dropdown(
+        choices=model,
+        label="Model",
+        visible=True,
+        allow_custom_value=False,
+    )
+
+    # Check for Valid Model
+    if len(model) == 0:
+        model_component = gr.Dropdown(
+            choices=model,
+            label="Model",
+            visible=True,
+            allow_custom_value=True,
+        )
+
+    return url_component, model_component
+
+
 # ui = gr.ChatInterface(chat_app, type="messages")
 with gr.Blocks() as ui:
     # Select LLM Provider
@@ -29,28 +62,32 @@ with gr.Blocks() as ui:
             with gr.Group():
                 with gr.Row():
                     llm_provider = gr.Dropdown(
-                        choices=["OpenAI", "OpenRouter", "Other"], label="LLM Provider"
+                        choices=["OpenAI", "OpenRouter", "Claude", "Other"],
+                        label="LLM Provider",
                     )
                     llm_api_url = gr.Textbox(label="API URL", visible=False)
                     llm_api_key = gr.Textbox(
                         label="API Key", type="password", visible=True
                     )
-                    llm_model = gr.Textbox(label="Model", visible=True)
+                    llm_model = gr.Dropdown(
+                        choices=get_provider_models("OpenAI"),
+                        label="Model",
+                        visible=True,
+                        allow_custom_value=False,
+                    )
                 save_llm_detail = gr.Button("Save")
 
             # Based on Provider, show API url field
             llm_provider.change(
-                lambda x: gr.Textbox(label="API URL", visible=(x == "Other")),
+                llm_form_by_provider,
                 inputs=llm_provider,
-                outputs=llm_api_url,
+                outputs=[llm_api_url, llm_model],
             )
 
             # Save LLM details
             save_llm_detail.click(
-                lambda provider, url, key, model: set_llm_config(
-                    provider, url, key, model
-                ),
-                inputs=[llm_provider, llm_api_url, llm_api_key, llm_model],
+                set_llm_config,
+                inputs=[llm_api_url, llm_api_key, llm_model],
                 outputs=[],
             )
 
