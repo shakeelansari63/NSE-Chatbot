@@ -33,9 +33,6 @@ def set_llm_config(url: str, api_key: str, model: str):
     _config.llm_api_key = api_key
     _config.llm_model = model
 
-    # Debug
-    print(_config)
-
 
 def get_provider_url(provider: str) -> str:
     provider_info = provider_llm_map.get(provider.lower(), None)
