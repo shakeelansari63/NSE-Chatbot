@@ -4,12 +4,16 @@ import gradio as gr
 
 from config import get_provider_models, get_provider_url, set_llm_config
 from graph import get_agent
-from messages import langchain_messages_to_openai
+from messages import langchain_messages_to_openai, system_prompt
 from model import OpenAIMessage
 
 
 async def chat_app(message: str, history: list[OpenAIMessage]):
     agent = await get_agent()
+
+    # Push System Prompt
+    if len(history) == 0:
+        history.append(system_prompt)
 
     # Add User question to history
     history.append(OpenAIMessage(role="user", content=message))
