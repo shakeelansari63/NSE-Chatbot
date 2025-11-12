@@ -7,6 +7,18 @@ from graph import get_agent
 from messages import langchain_messages_to_openai, system_prompt
 from model import OpenAIMessage
 
+# Force Dark Theme on Gradio
+js_func = """
+function refresh() {
+    const url = new URL(window.location);
+
+    if (url.searchParams.get('__theme') !== 'dark') {
+        url.searchParams.set('__theme', 'dark');
+        window.location.href = url.href;
+    }
+}
+"""
+
 
 async def chat_app(message: str, history: list[OpenAIMessage]):
     agent = await get_agent()
@@ -56,10 +68,17 @@ def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
 
 
 # ui = gr.ChatInterface(chat_app, type="messages")
-with gr.Blocks() as ui:
+with gr.Blocks(
+    theme=gr.themes.Soft(primary_hue="teal", neutral_hue="zinc"),
+    js=js_func,
+    css="footer {display:none !important}",
+) as ui:
     # Select LLM Provider
     with gr.Accordion(
-        "The default LLM uses free tier OpenRouter and will be rate limited. If you have a paid account to frontier model, please select it accordingly",
+        (
+            "The default LLM uses free tier OpenRouter and will be rate limited. If you have a paid account to frontier model. "
+            ">>Expand this section to choose model of your choice"
+        ),
         open=False,
     ):
         with gr.Row():
@@ -104,7 +123,9 @@ with gr.Blocks() as ui:
 
     with gr.Row():
         with gr.Group():
-            text_input = gr.Textbox(label="", placeholder="Ask your question...")
+            text_input = gr.Textbox(
+                show_label=False, placeholder="Ask your question..."
+            )
             send_button = gr.Button("Ask")
 
     # Event Handlers

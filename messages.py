@@ -22,11 +22,16 @@ def langchain_messages_to_openai(
         # Role
         role = "system"
         if isinstance(message, AIMessage):
+            # Skip Tool Call where Content was empty
+            if not message.content:
+                continue
+
+            # Otherwise register as Assistant message
             role = "assistant"
         elif isinstance(message, HumanMessage):
             role = "user"
         elif isinstance(message, ToolMessage):
-            role = "function"
+            continue
 
         # Content
         content: str = str(message.content)
