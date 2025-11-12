@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 
-from chatui import ui
-
 load_dotenv(override=True)
+
+from chatui import ui  # noqa # Dot Env needs to be loaded before reading any config
 
 
 def main():

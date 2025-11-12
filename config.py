@@ -5,9 +5,9 @@ from pydantic_settings import BaseSettings
 
 
 class AppConfig(BaseSettings):
-    llm_api_key: str = os.getenv("OPENROUTER_API_KEY", "")
-    llm_api_url: str = "https://openrouter.ai/api/v1"
-    llm_model: str = "openai/gpt-oss-20b:free"
+    llm_api_key: str = os.getenv("MYLLM_API_KEY", "")
+    llm_api_url: str = os.getenv("MYLLM_API_URL", "")
+    llm_model: str = os.getenv("MYLLM_MODEL", "")
     nse_mcp_url: str = "https://nse-mcp-tools.azurewebsites.net/mcp"
 
 
@@ -63,6 +63,10 @@ provider_llm_map: dict[str, ProviderConfig] = {
             "gpt-4o",
             "gpt-4o-mini",
         ],
+    },
+    "groq": {
+        "url": "https://api.groq.com/openai/v1",
+        "models": [],
     },
     "openrouter": {
         "url": "https://openrouter.ai/api/v1",

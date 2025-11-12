@@ -66,7 +66,7 @@ with gr.Blocks() as ui:
             with gr.Group():
                 with gr.Row():
                     llm_provider = gr.Dropdown(
-                        choices=["OpenAI", "OpenRouter", "Claude", "Other"],
+                        choices=["OpenAI", "Groq", "OpenRouter", "Claude", "Other"],
                         label="LLM Provider",
                     )
                     llm_api_url = gr.Textbox(label="API URL", visible=False)
