@@ -3,12 +3,14 @@ from typing import TypedDict
 
 from pydantic_settings import BaseSettings
 
+import server_config as sc
+
 
 class AppConfig(BaseSettings):
     llm_api_key: str = os.getenv("MYLLM_API_KEY", "")
     llm_api_url: str = os.getenv("MYLLM_API_URL", "")
     llm_model: str = os.getenv("MYLLM_MODEL", "")
-    nse_mcp_url: str = "https://nse-mcp-tools.azurewebsites.net/mcp"
+    nse_mcp_url: str = f"http://localhost:{sc.port}/mcp/"
 
 
 class ProviderConfig(TypedDict):

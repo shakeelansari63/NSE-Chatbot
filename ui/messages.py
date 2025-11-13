@@ -1,8 +1,8 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
-from model import OpenAIMessage
+from .model import OpenAIMessage
 
-_system_message = (
+system_message = (
     "You are National Stock Exchange Assistant and give informations about Indian National Stock Exchange (NSE). "
     "To answer the questions you can use the provided Tools. "
     "Most of the tools need a valid NSE symbol and will NOT work with just Company Name. "
@@ -10,8 +10,6 @@ _system_message = (
     "Use this tool to identify the right NSE Symbol for Company. "
     "Never guess the symbol of Company. When in doubt use the tool to find the right symbol. "
 )
-
-system_prompt = OpenAIMessage(role="system", content=_system_message)
 
 
 def langchain_messages_to_openai(

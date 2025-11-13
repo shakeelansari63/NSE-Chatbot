@@ -1,8 +1,10 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
-from config import get_config
 from pydantic import SecretStr
+
+from .config import get_config
+from .messages import system_message
 
 config = get_config()
 
@@ -26,6 +28,7 @@ async def get_agent():
             model=config.llm_model,
         ),
         tools=tools,
+        prompt=system_message,
     )
 
     return agent

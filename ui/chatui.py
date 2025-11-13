@@ -2,10 +2,10 @@ from typing import Any
 
 import gradio as gr
 
-from config import get_provider_models, get_provider_url, set_llm_config
-from graph import get_agent
-from messages import langchain_messages_to_openai, system_prompt
-from model import OpenAIMessage
+from .config import get_provider_models, get_provider_url, set_llm_config
+from .graph import get_agent
+from .messages import langchain_messages_to_openai
+from .model import OpenAIMessage
 
 # Force Dark Theme on Gradio
 js_func = """
@@ -22,10 +22,6 @@ function refresh() {
 
 async def chat_app(message: str, history: list[OpenAIMessage]):
     agent = await get_agent()
-
-    # Push System Prompt
-    if len(history) == 0:
-        history.append(system_prompt)
 
     # Add User question to history
     history.append(OpenAIMessage(role="user", content=message))
@@ -73,12 +69,16 @@ with gr.Blocks(
     js=js_func,
     css="footer {display:none !important}",
 ) as ui:
+    # Header
+    with gr.Row():
+        gr.HTML(
+            """
+            <center><h1>🚀 NSE Chatbot 🚀</h1></center>
+            """
+        )
     # Select LLM Provider
     with gr.Accordion(
-        (
-            "The default LLM uses free tier OpenRouter and will be rate limited. If you have a paid account to frontier model. "
-            ">>Expand this section to choose model of your choice"
-        ),
+        "(Optional) Choose your own LLM Provider",
         open=False,
     ):
         with gr.Row():
@@ -119,7 +119,12 @@ with gr.Blocks(
 
     # Chat Bot
     with gr.Row():
-        chatbot = gr.Chatbot(type="messages", label="NSE Chatbot")
+        chatbot = gr.Chatbot(
+            type="messages",
+            label="NSE Chatbot",
+            resizable=True,
+            height=500,
+        )
 
     with gr.Row():
         with gr.Group():
@@ -127,6 +132,12 @@ with gr.Blocks(
                 show_label=False, placeholder="Ask your question..."
             )
             send_button = gr.Button("Ask")
+
+    # Bottom Disclaimer
+    with gr.Row():
+        disclaimer = gr.Markdown(
+            "**Disclaimer:** This Chatbot uses Free tier LLM model from GROQ which would be rate limited. If you have personal key for OpenAI/OpenRouter/Groq/Claude, please choose at the top."
+        )
 
     # Event Handlers
     send_button.click(chat_app, inputs=[text_input, chatbot], outputs=chatbot)
