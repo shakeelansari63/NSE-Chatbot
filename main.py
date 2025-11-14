@@ -2,7 +2,7 @@ import gradio as gr
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 
 import server_config as sc
 from mcp_tools.main import mcp as mcp_app
@@ -15,7 +15,13 @@ from ui.chatui import ui as gradio_ui  # noqa
 mcp_http_app = mcp_app.http_app(path="/")
 
 # Create Fastapi app with MCP's Lifespan
-app = FastAPI(title="NSE App", lifespan=mcp_http_app.lifespan)
+app = FastAPI(title="NSE Chatbot App", lifespan=mcp_http_app.lifespan)
+
+
+# Return Favicon
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(sc.favicon_path)
 
 
 # Add route for redirecting root to UI

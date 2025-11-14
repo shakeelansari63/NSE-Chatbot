@@ -5,6 +5,8 @@ from pydantic_settings import BaseSettings
 
 import server_config as sc
 
+from .model import Socials
+
 
 class AppConfig(BaseSettings):
     llm_api_key: str = os.getenv("MYLLM_API_KEY", "")
@@ -86,4 +88,8 @@ provider_llm_map: dict[str, ProviderConfig] = {
             "claude-3-5-haiku-latest",
         ],
     },
+}
+
+socials: Socials = {
+    "github": "https://github.com/shakeelansari63/NSE-Chatbot",
 }

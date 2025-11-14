@@ -65,6 +65,7 @@ def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
 
 # ui = gr.ChatInterface(chat_app, type="messages")
 with gr.Blocks(
+    title="NSE Chatbot",
     theme=gr.themes.Soft(primary_hue="teal", neutral_hue="zinc"),
     js=js_func,
     css="footer {display:none !important}",
@@ -123,13 +124,15 @@ with gr.Blocks(
             type="messages",
             label="NSE Chatbot",
             resizable=True,
-            height=500,
+            height=450,
         )
 
     with gr.Row():
         with gr.Group():
             text_input = gr.Textbox(
-                show_label=False, placeholder="Ask your question..."
+                show_label=False,
+                placeholder="Ask your question...",
+                autofocus=True,
             )
             send_button = gr.Button("Ask")
 

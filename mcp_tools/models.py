@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict
 from typing import Any
+
+from pydantic import BaseModel, ConfigDict
 
 
 class FlexibleBaseModel(BaseModel):
@@ -88,12 +89,9 @@ class StockInfo(FlexibleBaseModel):
     tempSuspendedSeries: list
     isETFSec: bool
     isDelisted: bool
-    isin: str
-    slb_isin: str
     listingDate: str
     isMunicipalBond: bool
     isHybridSymbol: bool
-    isTop10: bool
     identifier: str
 
 
