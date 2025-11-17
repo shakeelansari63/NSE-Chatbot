@@ -64,7 +64,11 @@ def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
 # ui = gr.ChatInterface(chat_app, type="messages")
 with gr.Blocks(
     title="NSE Chatbot",
-    theme=gr.themes.Soft(primary_hue="teal", neutral_hue="zinc"),
+    theme=gr.themes.Soft(
+        primary_hue="teal",
+        neutral_hue="zinc",
+        font=[gr.themes.GoogleFont("Ubuntu"), "Arial", "sans-serif"],
+    ),
     js=js_func,
     css="footer {display:none !important}",
 ) as ui:
@@ -76,31 +80,31 @@ with gr.Blocks(
             """
         )
     # Select LLM Provider
-    with gr.Accordion(
-        "(Optional) Choose your own LLM Provider",
+    with gr.Sidebar(
+        position="right",
         open=False,
     ):
         with gr.Row():
-            with gr.Group():
-                with gr.Row():
-                    llm_provider = gr.Dropdown(
-                        choices=["OpenAI", "Groq", "OpenRouter", "Claude", "Other"],
-                        label="LLM Provider",
-                    )
-                    llm_api_url = gr.Textbox(label="API URL", visible=False)
-                    llm_model = gr.Dropdown(
-                        choices=get_provider_models("OpenAI"),
-                        label="Model",
-                        visible=True,
-                        allow_custom_value=False,
-                    )
-                    llm_api_key = gr.Textbox(
-                        label="API Key",
-                        type="password",
-                        visible=True,
-                    )
+            with gr.Row():
+                gr.Markdown("### Select your own LLM Provider")
+                llm_provider = gr.Dropdown(
+                    choices=["OpenAI", "Groq", "OpenRouter", "Claude", "Other"],
+                    label="LLM Provider",
+                )
+                llm_api_url = gr.Textbox(label="API URL", visible=False)
+                llm_model = gr.Dropdown(
+                    choices=get_provider_models("OpenAI"),
+                    label="Model",
+                    visible=True,
+                    allow_custom_value=False,
+                )
+                llm_api_key = gr.Textbox(
+                    label="API Key",
+                    type="password",
+                    visible=True,
+                )
 
-                save_llm_detail = gr.Button("Save")
+            save_llm_detail = gr.Button("Save")
 
             # Based on Provider, show API url field
             llm_provider.change(
@@ -120,7 +124,7 @@ with gr.Blocks(
     with gr.Row():
         chatbot = gr.Chatbot(
             type="messages",
-            label="NSE Chatbot",
+            show_label=False,
             resizable=True,
             height=450,
         )
