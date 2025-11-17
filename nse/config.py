@@ -1,5 +1,5 @@
 BASE_URL = "https://www.nseindia.com"
-COOKIE_URL = f"{BASE_URL}/get-quotes/equity?symbol=TCS"
+EQUITY_URL = f"{BASE_URL}/get-quotes/equity?symbol="
 MARKET_STATUS_URL = f"{BASE_URL}/api/marketStatus"
 STOCK_QUOTE_URL = f"{BASE_URL}/api/quote-equity"
 MARKET_PRE_OPEN_URL = f"{BASE_URL}/api/market-data-pre-open?key=ALL"

@@ -1,7 +1,9 @@
 import urllib.parse
-from typing import Any, Mapping
+from typing import Any
 
 import httpx
+
+from server_config import get_server_config as sc
 
 from . import config as conf
 
@@ -17,7 +19,7 @@ class NSEHttpClient:
         """
         client = httpx.Client()
         client.headers.update(conf.NSE_HEADER)
-        client.get(conf.COOKIE_URL)
+        client.get(f"{conf.EQUITY_URL}{sc().test_symbol}")
         self.cookies = client.cookies
 
     def _check_cookie_expired(self):
@@ -41,7 +43,7 @@ class NSEHttpClient:
         self._check_cookie_expired()
         return httpx.Client(cookies=self.cookies, headers=conf.NSE_HEADER)
 
-    def get_nse_data(self, url: str, params: Mapping[str, str] | None = None) -> Any:
+    def get_nse_data(self, url: str, params: dict[str, str] | None = None) -> Any:
         """
         This method fetches data from the given NSE URL.
         It returns the JSON response if successful, or None if there is an error.

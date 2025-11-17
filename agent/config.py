@@ -1,18 +1,17 @@
-import os
+from dataclasses import dataclass
 from typing import TypedDict
 
-from pydantic_settings import BaseSettings
-
-import server_config as sc
+from server_config import get_server_config
 
 from .model import Socials
 
 
-class AppConfig(BaseSettings):
-    llm_api_key: str = os.getenv("MYLLM_API_KEY", "")
-    llm_api_url: str = os.getenv("MYLLM_API_URL", "")
-    llm_model: str = os.getenv("MYLLM_MODEL", "")
-    nse_mcp_url: str = f"http://localhost:{sc.port}/mcp/"
+@dataclass
+class LLMConfig:
+    llm_api_url: str = get_server_config().llm_api_url
+    llm_api_key: str = get_server_config().llm_api_key
+    llm_model: str = get_server_config().llm_model
+    nse_mcp_url: str = get_server_config().nse_mcp_url
 
 
 class ProviderConfig(TypedDict):
@@ -20,11 +19,11 @@ class ProviderConfig(TypedDict):
     models: list[str]
 
 
-_config = AppConfig()
+_config = LLMConfig()
 
 
 # Get Config Object
-def get_config():
+def get_config() -> LLMConfig:
     return _config
 
 

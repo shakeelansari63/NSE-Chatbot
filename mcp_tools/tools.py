@@ -1,16 +1,15 @@
 from fastmcp import FastMCP
-from thefuzz import fuzz
 
-from .helper import (
+from dbman.helper import search_nse_company_indb
+from nse.helper import (
     get_all_market_pre_open,
     get_market_state,
-    get_nse_company_list_from_rediff,
     get_stock_details,
     get_stock_running_52week_high,
     get_stock_running_52week_low,
     get_weekly_volume_gainers,
 )
-from .models import (
+from nse.models import (
     MarketPreOpenMcp,
     MarketStatusMcp,
     NSECompanyListWithMatchScore,
@@ -147,71 +146,6 @@ def register_tools(mcp: FastMCP) -> None:
                 {"INFY" : "Infosys Limited"}
             ]
         """
-        companies_list = get_nse_company_list_from_rediff()
+        companies = search_nse_company_indb(search_key)
 
-        if companies_list is None:
-            return "Unable to fetch NSE companies"
-
-        # Calculate Score of search key match with company name and Symbol
-        companies_score = [
-            NSECompanyListWithMatchScore(
-                symbol=company.symbol,
-                companyName=company.companyName,
-                nameScore=fuzz.ratio(search_key.lower(), company.companyName.lower()),
-                symbolScore=fuzz.ratio(search_key.lower(), company.symbol.lower()),
-            )
-            for company in companies_list
-        ]
-
-        # Companies considered for search match
-        search_match: list[NSECompanyListWithMatchScore] = []
-
-        # Identify Companies where name starts with search key
-        company_names_starts_with_searchkey = [
-            cs
-            for cs in companies_score
-            if cs.companyName.lower().startswith(search_key.lower())
-        ]
-
-        # Take 2 companies with name starting with search key
-        if len(company_names_starts_with_searchkey) > 2:
-            search_match.extend(company_names_starts_with_searchkey[:2])
-        else:
-            search_match.extend(company_names_starts_with_searchkey)
-
-        # Identify companies where search key is present in middle of company name
-        company_names_contains_searchkey = [
-            cs
-            for cs in companies_score
-            if search_key.lower() in cs.companyName.lower() and cs not in search_match
-        ]
-
-        # Take 2 companies with search key in middle of name
-        if len(company_names_contains_searchkey) > 2:
-            search_match.extend(company_names_contains_searchkey[:2])
-        else:
-            search_match.extend(company_names_contains_searchkey)
-
-        # Sort Company Score by Name Score in Descending Order
-        company_name_matches = sorted(
-            [cs for cs in companies_score if cs not in search_match],
-            key=lambda x: x.nameScore,
-            reverse=True,
-        )
-
-        # Take top 3 matches
-        search_match.extend(company_name_matches[:3])
-
-        # Sort Company score by symbol score in descending order
-        company_symbol_matches = sorted(
-            [cs for cs in companies_score if cs not in search_match],
-            key=lambda x: x.symbolScore,
-            reverse=True,
-        )
-
-        # Take top 3 matches
-        search_match.extend(company_symbol_matches[:3])
-
-        # Convert it to a list of key and value pairs
-
-        return [{company.symbol: company.companyName} for company in search_match]
+        return [{company.symbol: company.name} for company in companies]

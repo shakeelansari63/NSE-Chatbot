@@ -1,11 +1,9 @@
-from typing import Any
-
 import gradio as gr
 
-from .config import get_provider_models, get_provider_url, set_llm_config
-from .graph import get_agent
-from .messages import langchain_messages_to_openai
-from .model import OpenAIMessage
+from agent.config import get_provider_models, get_provider_url, set_llm_config
+from agent.graph import get_agent
+from agent.messages import langchain_messages_to_openai
+from agent.model import OpenAIMessage
 
 # Force Dark Theme on Gradio
 js_func = """
