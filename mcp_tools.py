@@ -138,8 +138,8 @@ def weekly_volume_gainer_stocks() -> list[str] | str:
 @mcp.tool()
 def search_nse_companies(search_key: str) -> list[dict[str, str]] | str:
     """
-    Returns a list of NSE companies that match the search key.
-    The search key can be a part of the company name or symbol.
+    Search the NSE Database for companies whose name or symbol matches the search key and returns a complete list.
+    The search key will be searched in Company name or Symbol and nowhere else.
 
     :params
         search_key: The key to search for in the NSE companies list.
