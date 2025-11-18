@@ -10,7 +10,6 @@ from .models import (
     MarketPreOpenMcp,
     MarketStatusApiResp,
     MarketStatusMcp,
-    NSECompaniesList,
     Stock52weekAnalysis,
     Stock52WeekHighResponse,
     Stock52WeekLowResponse,
@@ -27,15 +26,15 @@ def _get_nse_client() -> NSEHttpClient:
     return nse_client
 
 
-def _get_url_soup(url: str) -> BeautifulSoup | None:
-    client = httpx.Client()
-    response = client.get(url)
-    if response.status_code != 200:
-        print(f"Failed to fetch URL: {url}")
-        return None
+# def _get_url_soup(url: str) -> BeautifulSoup | None:
+#     client = httpx.Client()
+#     response = client.get(url)
+#     if response.status_code != 200:
+#         print(f"Failed to fetch URL: {url}")
+#         return None
 
-    soup = BeautifulSoup(response.text, "html.parser")
-    return soup
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     return soup
 
 
 def get_market_state() -> list[MarketStatusMcp] | None:

@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 
 from chatui import ui as gradio_ui
 from dbman.actions import refresh_market_metadata
-from mcp_tools.main import mcp as mcp_app
+from mcp_tools import mcp as mcp_app
 from server_config import get_server_config as sc
 
 # Create MCP HTTP App

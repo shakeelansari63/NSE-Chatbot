@@ -731,6 +731,18 @@ wheels = [
 ]
 
 [[package]]
+name = "httpx-retries"
+version = "0.4.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/22/40/b9b5e4c16fb86d2999840bb795b28670a61856c7f48f030530b412bf4133/httpx_retries-0.4.5.tar.gz", hash = "sha256:acee306d7384eefad71ac12fefe8b13d7b41c19595c538e68d9bd7e40e59539d", size = 13015, upload-time = "2025-10-17T15:55:23.871Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/0a/2626b5a2678f8072ba3174d3e40f81429fdc41d1cb993280dbc7ba3c4e3f/httpx_retries-0.4.5-py3-none-any.whl", hash = "sha256:ae22d6ef197a2da49242246a01d721474cbd6516b1fef155f6da694ee410bb37", size = 8301, upload-time = "2025-10-17T15:55:22.869Z" },
+]
+
+[[package]]
 name = "httpx-sse"
 version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1244,6 +1256,7 @@ dependencies = [
     { name = "fastmcp" },
     { name = "gradio" },
     { name = "httpx" },
+    { name = "httpx-retries" },
     { name = "langchain" },
     { name = "langchain-mcp-adapters" },
     { name = "langchain-openai" },
@@ -1266,6 +1279,7 @@ requires-dist = [
     { name = "fastmcp", specifier = ">=2.13.0.2" },
     { name = "gradio", specifier = ">=5.49.1" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "httpx-retries", specifier = ">=0.4.5" },
     { name = "langchain", specifier = ">=1.0.5" },
     { name = "langchain-mcp-adapters", specifier = ">=0.1.13" },
     { name = "langchain-openai", specifier = ">=1.0.2" },

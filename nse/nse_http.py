@@ -2,6 +2,7 @@ import urllib.parse
 from typing import Any
 
 import httpx
+from httpx_retries import Retry, RetryTransport
 
 from server_config import get_server_config as sc
 
@@ -10,6 +11,11 @@ from . import config as conf
 
 class NSEHttpClient:
     def __init__(self):
+        # Set Retry transport for Httpx
+        retry: Retry = Retry(total=3, backoff_factor=0.5)
+        self.retry_transport: RetryTransport = RetryTransport(retry=retry)
+
+        # Set Initial Cookie
         self._set_nse_cookies()
 
     def _set_nse_cookies(self):
@@ -17,7 +23,7 @@ class NSEHttpClient:
         This method is used to set the cookies required for NSE API requests.
         It initializes a session and fetches the cookies from the base URL.
         """
-        client = httpx.Client()
+        client = httpx.Client(transport=self.retry_transport)
         client.headers.update(conf.NSE_HEADER)
         client.get(f"{conf.EQUITY_URL}{sc().test_symbol}")
         self.cookies = client.cookies
@@ -41,9 +47,17 @@ class NSEHttpClient:
         It checks if the cookies are expired before returning the client.
         """
         self._check_cookie_expired()
-        return httpx.Client(cookies=self.cookies, headers=conf.NSE_HEADER)
+        return httpx.Client(
+            cookies=self.cookies,
+            headers=conf.NSE_HEADER,
+            transport=self.retry_transport,
+        )
 
-    def get_nse_data(self, url: str, params: dict[str, str] | None = None) -> Any:
+    def get_nse_data(
+        self,
+        url: str,
+        params: dict[str, str] | None = None,
+    ) -> Any | None:
         """
         This method fetches data from the given NSE URL.
         It returns the JSON response if successful, or None if there is an error.
@@ -57,6 +71,9 @@ class NSEHttpClient:
             response = client.get(url)
             response.raise_for_status()
             return response.json()
+        except httpx.ReadTimeout:
+            print("Fail to read NSE even after multiple retries")
+            return None
         except httpx.HTTPStatusError as e:
             print(f"HTTP error occurred: {e}")
             return None

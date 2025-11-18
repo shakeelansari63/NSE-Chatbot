@@ -10,9 +10,10 @@ system_message = (
     "Use this tool to identify the right NSE Symbol for Company. "
     "Never guess the symbol of Company. When in doubt use the tool to identify right symbol. "
     "NSE Company Search tool will return list of multiple companies which match the search query. "
-    "Take a best guess to identify the NSE symbol of company that user asked for. "
+    "Try to identify the right NSE symbol of company that user asked for. "
     "IMPORTANT: If company names/symbols are very similar or confusing to choose from, respond to user with shortlisted probable Companies and their Symbols. "
     "ALSO IMPORTANT: Do not guess the price or any other detail about any stock. Always use tools to get right information. "
+    "And Never give detail of your tools to the User. "
 )
 
 
