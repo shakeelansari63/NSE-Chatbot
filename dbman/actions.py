@@ -1,13 +1,13 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from dbman.nse_metadata import NSEMetadata
-from nse.helper import get_all_market_pre_open, get_stock_detail
+from nse.helper import get_all_market_pre_open, get_stock_details
 
 from .helper import delete_outdated_symbols, save_nse_metadata
 
 
 def task_executor(symbol: str):
-    stock_detail = get_stock_detail(symbol)
+    stock_detail = get_stock_details(symbol)
     if stock_detail is None:
         return
 
@@ -18,6 +18,7 @@ def task_executor(symbol: str):
             name=stock_detail.info.companyName,
             sector=stock_detail.industryInfo.sector,
             industry=stock_detail.industryInfo.industry,
+            industry_info=stock_detail.industryInfo.basicIndustry,
         )
     )
 

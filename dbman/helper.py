@@ -146,7 +146,10 @@ def get_unique_sectors_and_industries() -> list[str]:
     with Session(engine) as session:
         q_sector = select(NSEMetadata.sector).group_by(NSEMetadata.sector)
         q_industries = select(NSEMetadata.industry).group_by(NSEMetadata.industry)
-        q_sector_industries = q_sector.union(q_industries)
+        q_industry_info = select(NSEMetadata.industry_info).group_by(
+            NSEMetadata.industry_info
+        )
+        q_sector_industries = q_sector.union(q_industries, q_industry_info)
 
         sector_industries: list[str] = [
             row[0] for row in session.exec(q_sector_industries).all()
@@ -164,6 +167,7 @@ def get_companies_in_sectors_or_industries(
             .where(
                 (NSEMetadata.sector.in_(sectors_or_industries))
                 | (NSEMetadata.industry.in_(sectors_or_industries))
+                | (NSEMetadata.industry_info.in_(sectors_or_industries))
             )
             .order_by(NSEMetadata.name)
         )

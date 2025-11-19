@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastmcp import FastMCP
 
 from dbman.helper import (
@@ -6,16 +8,14 @@ from dbman.helper import (
     search_nse_company_indb,
 )
 from nse.helper import (
-    get_all_market_pre_open,
-    get_market_state,
+    get_capital_market_state,
     get_stock_details,
     get_stock_running_52week_high,
     get_stock_running_52week_low,
     get_weekly_volume_gainers,
 )
 from nse.models import (
-    MarketPreOpenMcp,
-    MarketStatusMcp,
+    MarketStatus,
     Stock52weekAnalysis,
     StockDetailResponse,
     StockWeeklyVolumeGainers,
@@ -28,66 +28,61 @@ mcp = FastMCP()
 @mcp.tool()
 async def check_equity_market_status() -> str:
     """
-    Check whether the Equity / Capital Market is up or not. Returns a string indicating the market status.
+    Check whether the Equity / Capital Market is open or closed. Returns a string indicating the market status.
     :resp
-        Market Status: OPEN / CLOSED
+        Market Status: OPEN / CLOSED / UNKNOWN
     """
-    market_state: list[MarketStatusMcp] | None = get_market_state()
+    market_state = get_capital_market_state()
 
     if market_state is None:
-        return "Unable to fetch Market Status from NSE"
+        return "UNKNOWN: Unable to get Market Status from NSE"
 
-    equity_market_state = list(
-        filter(lambda x: x.market == "Capital Market", market_state)
-    )[0]
-    return equity_market_state.marketStatus
+    return str(market_state)
 
 
 @mcp.tool()
-def get_stock_closing_price(symbol: str) -> str:
+def get_current_stock_price(symbol: str) -> dict[str, Any]:
     """
-    Returns the closing price of the given stock symbol.
+    Returns the Current price and previous day close price of the given stock symbol.
+    If market is closed, CurrentPrice will be the Closing price on market day.
 
     :params
-        symbol: Symbol / Code of Stock whose closing price is requested
+        symbol: Symbol / Code of stock
 
     :resp
-        Closing price of the stock from Market.
-    """
-    preopen_data: list[MarketPreOpenMcp] | None = get_all_market_pre_open()
-
-    if preopen_data is None:
-        return "Unable to fetch Symbols from NSE"
-
-    price = None
-
-    for d in preopen_data:
-        if d.symbol == symbol:
-            price = d.previousClose
-
-    if price is None:
-        return f"Symbol {symbol} not found in NSE Pre-Open Market Data"
-
-    return f"Closing Price of {symbol} is INR {price}"
-
-
-@mcp.tool()
-def get_live_stock_price(symbol: str) -> str:
-    """
-    Returns the current live price of Stock registered in NSE.
-
-    :params
-        symbol: Symbol / Code of Stock whose price is requested
-
-    :resp
-        Current stock price from Market.
+        {
+            "Symbol": <Stock Symbol>,
+            "CurrentPrice": <Current or Closing Price>,
+            "PreviousClosePrice": <Closing Price on previous market day>,
+        }
     """
     stock_detail: StockDetailResponse | None = get_stock_details(symbol)
+    market_state = get_capital_market_state()
 
-    if stock_detail is None:
-        return "Unable to fetch Stock Data from NSE"
+    if stock_detail is None or market_state is None:
+        return {
+            "Symbol": symbol,
+            "CurrentPrice": stock_detail.priceInfo.lastPrice
+            if stock_detail
+            else "UNKNOWN",
+            "PreviousClosePrice": stock_detail.priceInfo.previousClose
+            if stock_detail
+            else "UNKNOWN",
+        }
 
-    return f"Current Price of {symbol} is INR {stock_detail.priceInfo.lastPrice}"
+    # Check for market status
+    if market_state == MarketStatus.CLOSED:
+        return {
+            "Symbol": symbol,
+            "CurrentPrice": stock_detail.priceInfo.close,
+            "PreviousClosePrice": stock_detail.priceInfo.previousClose,
+        }
+
+    return {
+        "Symbol": symbol,
+        "CurrentPrice": stock_detail.priceInfo.lastPrice,
+        "PreviousClosePrice": stock_detail.priceInfo.previousClose,
+    }
 
 
 @mcp.tool()

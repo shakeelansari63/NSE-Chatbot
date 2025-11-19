@@ -1,13 +1,10 @@
-import re
 from functools import cache
-
-import httpx
-from bs4 import BeautifulSoup
 
 from . import config as conf
 from .models import (
     MarketPreOpenApiResponse,
     MarketPreOpenMcp,
+    MarketStatus,
     MarketStatusApiResp,
     MarketStatusMcp,
     Stock52weekAnalysis,
@@ -26,18 +23,7 @@ def _get_nse_client() -> NSEHttpClient:
     return nse_client
 
 
-# def _get_url_soup(url: str) -> BeautifulSoup | None:
-#     client = httpx.Client()
-#     response = client.get(url)
-#     if response.status_code != 200:
-#         print(f"Failed to fetch URL: {url}")
-#         return None
-
-#     soup = BeautifulSoup(response.text, "html.parser")
-#     return soup
-
-
-def get_market_state() -> list[MarketStatusMcp] | None:
+def get_all_markets_state() -> list[MarketStatusMcp] | None:
     data = _get_nse_client().get_nse_data(conf.MARKET_STATUS_URL)
     if data is None:
         return None
@@ -57,14 +43,18 @@ def get_market_state() -> list[MarketStatusMcp] | None:
     return resp_market_state
 
 
-def get_stock_detail(symbol: str) -> StockDetailResponse | None:
-    data = _get_nse_client().get_nse_data(conf.STOCK_QUOTE_URL, {"symbol": symbol})
-
-    if data is None:
+def get_capital_market_state() -> MarketStatus | None:
+    all_market_state = get_all_markets_state()
+    if all_market_state is None:
         return None
 
-    stock_data = StockDetailResponse.model_validate(data)
-    return stock_data
+    equity_market_state = list(
+        filter(lambda x: x.market == "Capital Market", all_market_state)
+    )
+    if not equity_market_state:
+        return None
+
+    return equity_market_state[0].marketStatus
 
 
 def get_all_market_pre_open() -> list[MarketPreOpenMcp] | None:
@@ -90,10 +80,10 @@ def get_stock_details(symbol: str) -> StockDetailResponse | None:
 
 
 def get_stock_running_52week_high() -> list[Stock52weekAnalysis] | None:
-    data: Stock52WeekHighResponse = _get_nse_client().get_nse_data(conf.STOCKS_52_HIGH)
+    data = _get_nse_client().get_nse_data(conf.STOCKS_52_HIGH)
     if data is None:
         return None
-    data: Stock52WeekHighResponse = Stock52WeekHighResponse.model_validate(data)
+    data = Stock52WeekHighResponse.model_validate(data)
     return data.data
 
 
@@ -101,7 +91,7 @@ def get_stock_running_52week_low() -> list[Stock52weekAnalysis] | None:
     data = _get_nse_client().get_nse_data(conf.STOCKS_52_LOW)
     if data is None:
         return None
-    data: Stock52WeekLowResponse = Stock52WeekLowResponse.model_validate(data)
+    data = Stock52WeekLowResponse.model_validate(data)
     return data.data
 
 
@@ -109,7 +99,5 @@ def get_weekly_volume_gainers() -> list[StockWeeklyVolumeGainers] | None:
     data = _get_nse_client().get_nse_data(conf.WEEKLY_VOLUME_GAINERS)
     if data is None:
         return None
-    data: StockWeeklyVolumeGainerResponse = (
-        StockWeeklyVolumeGainerResponse.model_validate(data)
-    )
+    data = StockWeeklyVolumeGainerResponse.model_validate(data)
     return data.data

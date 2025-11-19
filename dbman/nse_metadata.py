@@ -7,3 +7,4 @@ class NSEMetadata(SQLModel, table=True):
     name: str
     sector: str
     industry: str
+    industry_info: str

@@ -1,6 +1,12 @@
+from enum import StrEnum, auto
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
+
+
+class MarketStatus(StrEnum):
+    OPEN = "Open"
+    CLOSED = "Closed"
 
 
 class FlexibleBaseModel(BaseModel):
@@ -9,7 +15,7 @@ class FlexibleBaseModel(BaseModel):
 
 class MarketState(FlexibleBaseModel):
     market: str
-    marketStatus: str
+    marketStatus: MarketStatus
     tradeDate: str
     index: str
     last: float | str
@@ -24,7 +30,7 @@ class MarketStatusApiResp(FlexibleBaseModel):
 
 class MarketStatusMcp(FlexibleBaseModel):
     market: str
-    marketStatus: str
+    marketStatus: MarketStatus
     tradeDate: str
     marketStatusMessage: str
 
