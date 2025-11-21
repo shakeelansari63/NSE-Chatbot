@@ -12,7 +12,8 @@ analytical_examples: list[str] = [
 ]
 trend_examples: list[str] = [
     "Give me list of 10 Stocks which are currently at their 52 week high.",
-    "Give me list of 10 Stocks which are currently at their 52 week low.",
+    "Give me list of 10 Stocks in Petrochemicals Sector.",
+    "Give me list of 5 Stocks operating in Information Technology Sector.",
 ]
 
 
