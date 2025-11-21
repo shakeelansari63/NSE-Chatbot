@@ -1,0 +1,20 @@
+from random import choice
+
+simple_examples: list[str] = [
+    "What is current price of Infosys?",
+    "What was last closing price of Tata Motors?",
+    "What is current price of VA Tech Wabag?",
+]
+analytical_examples: list[str] = [
+    "What is current price of TCS and how has it change from previous market day?",
+    "What is current price of Coal India and has it gone up or down from previous market day?",
+    "What is current price of Tata Motors Passenger Vehicle against Commercial Vehicle?",
+]
+trend_examples: list[str] = [
+    "Give me list of 10 Stocks which are currently at their 52 week high.",
+    "Give me list of 10 Stocks which are currently at their 52 week low.",
+]
+
+
+def get_examples() -> tuple[str, str, str]:
+    return choice(simple_examples), choice(analytical_examples), choice(trend_examples)

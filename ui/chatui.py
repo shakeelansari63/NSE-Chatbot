@@ -5,17 +5,8 @@ from agent.graph import get_agent
 from agent.messages import langchain_messages_to_openai
 from agent.model import OpenAIMessage
 
-# Force Dark Theme on Gradio
-js_func = """
-function refresh() {
-    const url = new URL(window.location);
-
-    if (url.searchParams.get('__theme') !== 'dark') {
-        url.searchParams.set('__theme', 'dark');
-        window.location.href = url.href;
-    }
-}
-"""
+from .examples import get_examples
+from .theme import app_css, app_theme
 
 
 async def chat_app(message: str, history: list[OpenAIMessage]):
@@ -64,13 +55,8 @@ def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
 # ui = gr.ChatInterface(chat_app, type="messages")
 with gr.Blocks(
     title="NSE Chatbot",
-    theme=gr.themes.Soft(
-        primary_hue="teal",
-        neutral_hue="zinc",
-        font=[gr.themes.GoogleFont("Ubuntu"), "Arial", "sans-serif"],
-    ),
-    js=js_func,
-    css="footer {display:none !important}",
+    theme=app_theme,
+    css=app_css,
 ) as ui:
     # Header
     with gr.Row():
@@ -122,21 +108,45 @@ with gr.Blocks(
 
     # Chat Bot
     with gr.Row():
-        chatbot = gr.Chatbot(
-            type="messages",
-            show_label=False,
-            resizable=True,
-            height=450,
-        )
+        with gr.Group():
+            chatbot = gr.Chatbot(
+                type="messages",
+                show_label=False,
+                resizable=True,
+                height=400,
+            )
+
+            with gr.Group():
+                text_input = gr.Textbox(
+                    show_label=False,
+                    placeholder="Ask your question...",
+                    autofocus=True,
+                    interactive=True,
+                )
+                send_button = gr.Button(
+                    "Ask",
+                    variant="primary",
+                )
 
     with gr.Row():
-        with gr.Group():
-            text_input = gr.Textbox(
-                show_label=False,
-                placeholder="Ask your question...",
-                autofocus=True,
-            )
-            send_button = gr.Button("Ask")
+        gr.HTML(
+            """
+            <center><h3>💡 Try some examples</h3></center>
+            """
+        )
+    # Examples
+    with gr.Row():
+        ex1 = gr.Button(get_examples()[0], scale=1, elem_classes="example-button")
+        ex2 = gr.Button(get_examples()[1], scale=1, elem_classes="example-button")
+        ex3 = gr.Button(get_examples()[2], scale=1, elem_classes="example-button")
+
+        # Get New Examples on Every Load
+        ui.load(get_examples, inputs=None, outputs=[ex1, ex2, ex3])
+
+        # Set Text on Example Click
+        ex1.click(lambda x: x, inputs=ex1, outputs=text_input)
+        ex2.click(lambda x: x, inputs=ex2, outputs=text_input)
+        ex3.click(lambda x: x, inputs=ex3, outputs=text_input)
 
     # Bottom Disclaimer
     with gr.Row():

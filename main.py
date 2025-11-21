@@ -3,10 +3,10 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
 
-from chatui import ui as gradio_ui
 from dbman.actions import refresh_market_metadata
 from mcp_tools import mcp as mcp_app
 from server_config import get_server_config as sc
+from ui.chatui import ui as gradio_ui
 
 # Create MCP HTTP App
 mcp_http_app = mcp_app.http_app(path="/")
