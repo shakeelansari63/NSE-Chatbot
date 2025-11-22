@@ -16,6 +16,8 @@ trend_examples: list[str] = [
     "Give me list of 5 Stocks operating in Information Technology Sector.",
 ]
 
+def format_example(exp: str) -> str:
+    return f"{exp:^100}"
 
 def get_examples() -> tuple[str, str, str]:
-    return choice(simple_examples), choice(analytical_examples), choice(trend_examples)
+    return format_example(choice(simple_examples)), format_example(choice(analytical_examples)), format_example(choice(trend_examples))
