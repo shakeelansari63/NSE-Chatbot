@@ -5,7 +5,7 @@ from agent.graph import get_agent
 from agent.messages import langchain_messages_to_openai
 from agent.model import OpenAIMessage
 
-from .examples import get_examples
+from .examples import get_examples, strip_example
 from .theme import app_css, app_theme
 
 
@@ -136,17 +136,17 @@ with gr.Blocks(
         )
     # Examples
     with gr.Row():
-        ex1 = gr.Button(get_examples()[0], scale=1, elem_classes="example-button")
-        ex2 = gr.Button(get_examples()[1], scale=1, elem_classes="example-button")
-        ex3 = gr.Button(get_examples()[2], scale=1, elem_classes="example-button")
+        ex1 = gr.Button("", scale=1, elem_classes="example-button")
+        ex2 = gr.Button("", scale=1, elem_classes="example-button")
+        ex3 = gr.Button("", scale=1, elem_classes="example-button")
 
         # Get New Examples on Every Load
         ui.load(get_examples, inputs=None, outputs=[ex1, ex2, ex3])
 
         # Set Text on Example Click
-        ex1.click(lambda x: x, inputs=ex1, outputs=text_input)
-        ex2.click(lambda x: x, inputs=ex2, outputs=text_input)
-        ex3.click(lambda x: x, inputs=ex3, outputs=text_input)
+        ex1.click(lambda x: strip_example(x), inputs=ex1, outputs=text_input)
+        ex2.click(lambda x: strip_example(x), inputs=ex2, outputs=text_input)
+        ex3.click(lambda x: strip_example(x), inputs=ex3, outputs=text_input)
 
     # Bottom Disclaimer
     with gr.Row():
