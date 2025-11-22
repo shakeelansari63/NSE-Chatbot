@@ -20,7 +20,7 @@ def format_example(exp: str) -> str:
     return f"{exp:^100}"
 
 def strip_example(exp: str) -> str:
-    return exp.strip("ㅤ")
+    return exp.strip().strip("ㅤ")
 
 def get_examples() -> tuple[str, str, str]:
     return format_example(choice(simple_examples)), format_example(choice(analytical_examples)), format_example(choice(trend_examples))
