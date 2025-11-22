@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 class MarketStatus(StrEnum):
     OPEN = "Open"
     CLOSED = "Closed"
+    CLOSE = "Close"
 
 
 class FlexibleBaseModel(BaseModel):
