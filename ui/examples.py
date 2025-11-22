@@ -17,7 +17,7 @@ trend_examples: list[str] = [
 ]
 
 def format_example(exp: str) -> str:
-    return f"{exp:ㅤ^100}"
+    return f"{exp:^100}"
 
 def strip_example(exp: str) -> str:
     return exp.strip("ㅤ")
