@@ -71,7 +71,7 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
         }
 
     # Check for market status
-    if market_state == MarketStatus.CLOSED:
+    if market_state == MarketStatus.CLOSED or market_state ==  MarketStatus.CLOSE:
         return {
             "Symbol": symbol,
             "CurrentPrice": stock_detail.priceInfo.close,
