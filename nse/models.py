@@ -87,13 +87,13 @@ class StockInfo(FlexibleBaseModel):
     companyName: str
     industry: str
     activeSeries: list[str]
-    debtSeries: list
+    debtSeries: list[Any]
     isFNOSec: bool
     isCASec: bool
     isSLBSec: bool
     isDebtSec: bool
     isSuspended: bool
-    tempSuspendedSeries: list
+    tempSuspendedSeries: list[Any]
     isETFSec: bool
     isDelisted: bool
     listingDate: str
@@ -200,6 +200,23 @@ class StockDetailMcpResponse(FlexibleBaseModel):
 class MarketSymbolMcpResponse(FlexibleBaseModel):
     symbol: str
     identifier: str
+
+
+class StockHistoryData(FlexibleBaseModel):
+    _id: str
+    CH_SYMBOL: str
+    CH_SERIES: str
+    CH_MARKET_TYPE: str
+    CH_TIMESTAMP: str
+    TIMESTAMP: str
+    CH_TRADE_HIGH_PRICE: float
+    CH_TRADE_LOW_PRICE: float
+    CH_OPENING_PRICE: float
+    CH_CLOSING_PRICE: float
+
+
+class StockHistoryDataResponse(FlexibleBaseModel):
+    data: list[StockHistoryData]
 
 
 class Stock52weekAnalysis(FlexibleBaseModel):

@@ -1,4 +1,5 @@
 from functools import cache
+from typing import Any
 
 from . import config as conf
 from .models import (
@@ -11,6 +12,8 @@ from .models import (
     Stock52WeekHighResponse,
     Stock52WeekLowResponse,
     StockDetailResponse,
+    StockHistoryData,
+    StockHistoryDataResponse,
     StockWeeklyVolumeGainerResponse,
     StockWeeklyVolumeGainers,
 )
@@ -77,6 +80,40 @@ def get_stock_details(symbol: str) -> StockDetailResponse | None:
 
     stock_data = StockDetailResponse.model_validate(data)
     return stock_data
+
+
+def get_stock_history_for_specific_range(
+    symbol: str,
+    from_date: str,
+    to_date: str,
+) -> list[StockHistoryData] | None:
+    # Get Stock Detail
+    detail = get_stock_details(symbol)
+
+    if detail is None:
+        return None
+
+    # Stock's Active Series
+    stock_series = (
+        detail.info.activeSeries[0] if len(detail.info.activeSeries) > 0 else "EQ"
+    )
+
+    # Get Stock History Data
+    data = _get_nse_client().get_nse_data(
+        conf.NSE_STOCK_HISTORY,
+        {
+            "symbol": symbol,
+            "series": f'["{stock_series}"]',
+            "from": from_date,
+            "to": to_date,
+        },
+    )
+
+    if data is None:
+        return None
+
+    stock_history_data = StockHistoryDataResponse.model_validate(data)
+    return stock_history_data.data
 
 
 def get_stock_running_52week_high() -> list[Stock52weekAnalysis] | None:

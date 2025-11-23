@@ -10,6 +10,7 @@ load_dotenv(override=True)
 class ServerConfig(BaseSettings):
     # Symbol for testing
     test_symbol: str = "TCS"
+
     # Server Config
     host: str = "0.0.0.0"
     port: int = 8000

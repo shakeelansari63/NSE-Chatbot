@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from fastmcp import FastMCP
@@ -10,6 +11,7 @@ from dbman.helper import (
 from nse.helper import (
     get_capital_market_state,
     get_stock_details,
+    get_stock_history_for_specific_range,
     get_stock_running_52week_high,
     get_stock_running_52week_low,
     get_weekly_volume_gainers,
@@ -22,6 +24,18 @@ from nse.models import (
 )
 
 mcp = FastMCP()
+
+
+# MCP Tool to Provide Current Date Time
+@mcp.tool()
+async def get_current_date_time() -> str:
+    """
+    Provides the current date and time in the format DD-MM-YYYY HH:MM:SS.
+
+    :resp
+        Current Date and Time: DD-MM-YYYY HH:MM:SS
+    """
+    return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
 
 # Register MCP
@@ -71,7 +85,7 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
         }
 
     # Check for market status
-    if market_state == MarketStatus.CLOSED or market_state ==  MarketStatus.CLOSE:
+    if market_state == MarketStatus.CLOSED or market_state == MarketStatus.CLOSE:
         return {
             "Symbol": symbol,
             "CurrentPrice": stock_detail.priceInfo.close,
@@ -82,6 +96,56 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
         "Symbol": symbol,
         "CurrentPrice": stock_detail.priceInfo.lastPrice,
         "PreviousClosePrice": stock_detail.priceInfo.previousClose,
+    }
+
+
+@mcp.tool()
+def get_stock_history_prices(
+    symbol: str,
+    from_date: str,
+    to_date: str,
+) -> dict[str, Any] | str:
+    """
+    Returns the historical prices of a stock.
+
+    :params
+        symbol: The symbol of the stock.
+        from_date: Start Date for Historical Data in DD-MM-YYYY format.
+        to_date: End Date for Historical Data in DD-MM-YYYY format.
+
+    :resp
+        {<Symbol>:[
+            {
+                "date": <Date in YYYY-MM-DD Format>,
+                "close": <Closing Price>,
+            }, ...
+        ],
+        "highest": <Highest Price in Date Range>,
+        "lowest": <Lowest Price in Date Range>}
+
+    Example Input: symbol="IRCTC", from_date="01-01-2023", to_date="02-01-2023"
+    Example Output: {"IRCTC":[
+            {"date": "2023-01-01","open": 100.0,"close": 105.0,"high": 110.0,"low": 95.0},
+            {"date": "2023-01-02","open": 105.0,"close": 110.0,"high": 115.0,"low": 100.0}
+        ], "highest": 120.9, "lowest": 92.0}
+    """
+    data = get_stock_history_for_specific_range(symbol, from_date, to_date)
+
+    if data is None:
+        return "Unable to fetch historical data from NSE"
+
+    stock_data = [
+        {
+            "date": stock.CH_TIMESTAMP,
+            "close": stock.CH_OPENING_PRICE,
+        }
+        for stock in data
+    ]
+
+    return {
+        symbol: stock_data,
+        "highest": max(data, key=lambda x: x.CH_TRADE_HIGH_PRICE).CH_TRADE_HIGH_PRICE,
+        "lowest": min(data, key=lambda x: x.CH_TRADE_LOW_PRICE).CH_TRADE_LOW_PRICE,
     }
 
 
@@ -181,6 +245,7 @@ def companies_in_sectors_and_industries(
 
     :resp
         A list containing mapping object/dictionary where key is company symbol and value is company name.
+
     Example Input: ["Information Technology"]
     Example Output:
         [
