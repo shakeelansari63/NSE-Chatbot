@@ -2,6 +2,7 @@ import gradio as gr
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from dbman.actions import refresh_market_metadata
 from mcp_tools import mcp as mcp_app
@@ -19,6 +20,14 @@ app = FastAPI(title="NSE Chatbot App", lifespan=mcp_http_app.lifespan)
 @app.get("/favicon.ico")
 async def favicon():
     return FileResponse(sc().favicon_path)
+
+
+# Server Files Generated in Temp Assets Directory
+app.mount(
+    f"/{sc().temp_assets_dir}",
+    StaticFiles(directory=sc().temp_assets_url),
+    name=sc().temp_assets_dir,
+)
 
 
 # Add route for redirecting root to UI

@@ -15,7 +15,7 @@ app_css = """
 footer {display:none !important};
 
 .example-button {
-    height: 100px;
-    padding: 10px 20px;
+    height: 100px !important;
+    padding: 10px 20px !important;
 }
 """

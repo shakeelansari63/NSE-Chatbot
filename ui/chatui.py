@@ -90,7 +90,7 @@ with gr.Blocks(
                     visible=True,
                 )
 
-            save_llm_detail = gr.Button("Save")
+            save_llm_detail = gr.Button("Save", variant="primary")
 
             # Based on Provider, show API url field
             llm_provider.change(
@@ -136,9 +136,9 @@ with gr.Blocks(
         )
     # Examples
     with gr.Row():
-        ex1 = gr.Button("", scale=1, elem_classes="example-button")
-        ex2 = gr.Button("", scale=1, elem_classes="example-button")
-        ex3 = gr.Button("", scale=1, elem_classes="example-button")
+        ex1 = gr.Button("", elem_classes=["example-button"], variant="huggingface")
+        ex2 = gr.Button("", elem_classes=["example-button"], variant="huggingface")
+        ex3 = gr.Button("", elem_classes=["example-button"], variant="huggingface")
 
         # Get New Examples on Every Load
         ui.load(get_examples, inputs=None, outputs=[ex1, ex2, ex3])

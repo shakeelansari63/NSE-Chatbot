@@ -4,6 +4,7 @@ from langchain_openai import ChatOpenAI
 from pydantic import SecretStr
 
 from .config import get_config
+from .local_tools import get_line_chart_for_data
 from .messages import system_message
 
 config = get_config()
@@ -21,6 +22,10 @@ async def get_agent():
 
     tools = await mcp_client.get_tools()
 
+    #  Add Local Tools
+    tools.append(get_line_chart_for_data)
+
+    # Build Agent
     agent = create_agent(
         model=ChatOpenAI(
             base_url=config.llm_api_url,

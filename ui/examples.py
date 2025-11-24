@@ -8,15 +8,16 @@ simple_examples: list[str] = [
 ]
 analytical_examples: list[str] = [
     "What is current price of TCS and how has it change from previous market day?",
-    "What is current price of Coal India and has it gone up or down in 1 month?",
-    "How has the price of HCL Changed over the period of last 3 months?",
+    "What is current price of Coal India and has it gone up or down in 1 month? Show with chart.",
     "What is current price of Tata Motors Passenger Vehicle against Commercial Vehicle?",
+    "How has HCL Tech performed in last 3 months? Provide insight with full chart.",
 ]
 trend_examples: list[str] = [
     "Give me list of 10 Stocks which are currently at their 52 week high.",
     "Give me list of 10 Stocks in Petrochemicals Sector.",
     "Give me list of 5 Stocks in Pharmaceutical Industry.",
     "Give me list of 5 Stocks operating in Information Technology Sector.",
+    "Give me list of 5 stocks with Company Name which have gained volume in the week.",
 ]
 
 

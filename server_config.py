@@ -1,3 +1,4 @@
+import os
 from functools import cache
 
 from dotenv import load_dotenv
@@ -17,6 +18,7 @@ class ServerConfig(BaseSettings):
     ui_path: str = "/ui"
     mcp_path: str = "/mcp"
     favicon_path: str = "assets/favicon.ico"
+    temp_assets_dir: str = "temp_assets"
 
     # Postgres DB Config
     pg_host: str = "localhost"
@@ -41,6 +43,27 @@ class ServerConfig(BaseSettings):
     @property
     def nse_mcp_url(self) -> str:
         return f"http://localhost:{self.port}{self.mcp_path}/"
+
+    # Path to temporary assets
+    @computed_field
+    @property
+    def temp_assets_path(self) -> str:
+        return f"{self.ui_path}/assets"
+
+    # Path to temporary assets
+    @computed_field
+    @property
+    def temp_assets_url(self) -> str:
+        current_path = os.path.dirname(os.path.abspath(__file__))
+
+        # Temp Assests Path
+        temp_assets_path = os.path.join(current_path, self.temp_assets_dir)
+
+        # Create if temp assets directory does not exist
+        if not os.path.exists(temp_assets_path):
+            os.makedirs(temp_assets_path)
+
+        return temp_assets_path
 
 
 @cache
