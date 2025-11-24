@@ -188,7 +188,7 @@ def get_stock_running_at_52week_low() -> list[str] | str:
 @mcp.tool()
 def weekly_volume_gainer_stocks() -> list[dict[str, str]] | str:
     """
-    Returns the list of stock symbols and CompanyName that are weekly volume gainers.
+    Returns the list of stocks which are weekly volume gainers.
 
     :params
         None
