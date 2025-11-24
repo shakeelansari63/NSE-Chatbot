@@ -180,18 +180,18 @@ def get_stock_running_at_52week_low() -> list[str] | str:
 
 
 @mcp.tool()
-def weekly_volume_gainer_stocks() -> list[str] | str:
+def weekly_volume_gainer_stocks() -> list[dict[str, str]] | str:
     """
-    Returns the list of stock symbols that are weekly volume gainers.
+    Returns the list of stock symbols and CompanyName that are weekly volume gainers.
 
     :resp
-        List of stock symbols that are weekly volume gainers.
+        List of object or dictionary where key is stock symbols and value is company name for weekly volume gainers.
     """
     data: list[StockWeeklyVolumeGainers] | None = get_weekly_volume_gainers()
     if data is None:
         return "Unable to fetch weekly volume gainers from NSE"
 
-    return [item.symbol for item in data]
+    return [{item.symbol: item.companyName} for item in data]
 
 
 @mcp.tool()
