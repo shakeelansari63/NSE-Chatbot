@@ -154,6 +154,9 @@ def get_stock_running_at_52week_high() -> list[str] | str:
     """
     Returns the list of stock symbols that are currently running at their 52-week high.
 
+    :params
+        None
+
     :response
         List of stock symbols running at 52-week high.
     """
@@ -169,6 +172,9 @@ def get_stock_running_at_52week_low() -> list[str] | str:
     """
     Returns the list of stock symbols that are currently running at their 52-week low.
 
+    :params
+        None
+
     :response
         List of stock symbols running at 52-week low.
     """
@@ -183,7 +189,9 @@ def get_stock_running_at_52week_low() -> list[str] | str:
 def weekly_volume_gainer_stocks() -> list[dict[str, str]] | str:
     """
     Returns the list of stock symbols and CompanyName that are weekly volume gainers.
-    NO Parameters needed
+
+    :params
+        None
 
     :response
         List of object or dictionary where key is stock symbols and value is company name for weekly volume gainers.
@@ -223,7 +231,10 @@ def available_sectors_and_industries() -> list[str]:
     """
     Returns a complete list of Sectors or Industries against which companies are registered.
 
-    :resp
+    :params
+        None
+
+    :response
         A list of sectors/industries.
 
     Example Output:
@@ -244,7 +255,7 @@ def companies_in_sectors_and_industries(
     :params
         sectors_or_industries: List of sectors or industries to search the company.
 
-    :resp
+    :response
         A list containing mapping object/dictionary where key is company symbol and value is company name.
 
     Example Input: ["Information Technology"]

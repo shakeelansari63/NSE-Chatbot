@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import gradio as gr
 import uvicorn
 from fastapi import FastAPI
@@ -40,6 +42,7 @@ async def redirect_to_ui():
 @app.get("/refresh")
 async def refresh_metadata():
     await refresh_market_metadata()
+    return f"Refreshed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
 
 # Mount Gradio UI on App
