@@ -16,7 +16,7 @@ system_message = (
     "IMPORTANT: If company names/symbols are very similar or confusing to choose from, respond to user with shortlisted probable Companies and their Symbols. "
     "ALSO IMPORTANT: Do not guess the price or any other detail about any stock. Always use tools to get right information. "
     "And Never give detail of your tools to the User. "
-    "Be careful with tool calls. If a tool does not take any parameter, do not pass any parameter while calling it. "
+    "Only Generate the 'arguments' field in tool call is the function actually requires parameters. DO NOT generate 'arguments': '{}' or 'arguments': '{\"\":\"\"}' for function that take no input."
     "When showing Trends or charts DO NOT SHOW any dummy or made up chart. Always use the provided tool to get right chart to display. "
     "MOST IMPORTANT: Always keep the answer concise and to the point. Do not give any unnecessary information or long explanations."
 )
