@@ -32,7 +32,7 @@ async def get_current_date_time() -> str:
     """
     Provides the current date and time in the format DD-MM-YYYY HH:MM:SS.
 
-    :resp
+    :response
         Current Date and Time: DD-MM-YYYY HH:MM:SS
     """
     return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
@@ -43,7 +43,7 @@ async def get_current_date_time() -> str:
 async def check_equity_market_status() -> str:
     """
     Check whether the Equity / Capital Market is open or closed. Returns a string indicating the market status.
-    :resp
+    :response
         Market Status: OPEN / CLOSED / UNKNOWN
     """
     market_state = get_capital_market_state()
@@ -63,7 +63,7 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
     :params
         symbol: Symbol / Code of stock
 
-    :resp
+    :response
         {
             "Symbol": <Stock Symbol>,
             "CurrentPrice": <Current or Closing Price>,
@@ -113,7 +113,7 @@ def get_stock_history_prices(
         from_date: Start Date for Historical Data in DD-MM-YYYY format.
         to_date: End Date for Historical Data in DD-MM-YYYY format.
 
-    :resp
+    :response
         {<Symbol>:[
             {
                 "date": <Date in YYYY-MM-DD Format>,
@@ -154,7 +154,7 @@ def get_stock_running_at_52week_high() -> list[str] | str:
     """
     Returns the list of stock symbols that are currently running at their 52-week high.
 
-    :resp
+    :response
         List of stock symbols running at 52-week high.
     """
     data: list[Stock52weekAnalysis] | None = get_stock_running_52week_high()
@@ -169,7 +169,7 @@ def get_stock_running_at_52week_low() -> list[str] | str:
     """
     Returns the list of stock symbols that are currently running at their 52-week low.
 
-    :resp
+    :response
         List of stock symbols running at 52-week low.
     """
     data: list[Stock52weekAnalysis] | None = get_stock_running_52week_low()
@@ -183,8 +183,9 @@ def get_stock_running_at_52week_low() -> list[str] | str:
 def weekly_volume_gainer_stocks() -> list[dict[str, str]] | str:
     """
     Returns the list of stock symbols and CompanyName that are weekly volume gainers.
+    NO Parameters needed
 
-    :resp
+    :response
         List of object or dictionary where key is stock symbols and value is company name for weekly volume gainers.
     """
     data: list[StockWeeklyVolumeGainers] | None = get_weekly_volume_gainers()
