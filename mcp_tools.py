@@ -29,23 +29,14 @@ mcp = FastMCP()
 # MCP Tool to Provide Current Date Time
 @mcp.tool()
 async def get_current_date_time() -> str:
-    """
-    Provides the current date and time in the format DD-MM-YYYY HH:MM:SS.
-
-    :response
-        Current Date and Time: DD-MM-YYYY HH:MM:SS
-    """
+    """Provides the current date and time in the format DD-MM-YYYY HH:MM:SS"""
     return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
 
 # Register MCP
 @mcp.tool()
 async def check_equity_market_status() -> str:
-    """
-    Check whether the Equity / Capital Market is open or closed. Returns a string indicating the market status.
-    :response
-        Market Status: OPEN / CLOSED / UNKNOWN
-    """
+    """Check whether the Equity / Capital Market is open or closed. Returns a string indicating the market status."""
     market_state = get_capital_market_state()
 
     if market_state is None:
@@ -60,10 +51,10 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
     Returns the Current price and previous day close price of the given stock symbol.
     If market is closed, CurrentPrice will be the Closing price on market day.
 
-    :params
-        symbol: Symbol / Code of stock
+    :PARAMETERS:
+        symbol: Stock Symbol
 
-    :response
+    :RESPONSE:
         {
             "Symbol": <Stock Symbol>,
             "CurrentPrice": <Current or Closing Price>,
@@ -106,14 +97,14 @@ def get_stock_history_prices(
     to_date: str,
 ) -> dict[str, Any] | str:
     """
-    Returns the historical prices of a stock.
+    Returns the historical prices of a stock for selected date range.
 
-    :params
-        symbol: The symbol of the stock.
-        from_date: Start Date for Historical Data in DD-MM-YYYY format.
-        to_date: End Date for Historical Data in DD-MM-YYYY format.
+    :PARAMETERS:
+        symbol: Stock Symbol
+        from_date: Range Start Date in DD-MM-YYYY format.
+        to_date: Range End Date in DD-MM-YYYY format.
 
-    :response
+    :RESPONSE:
         {<Symbol>:[
             {
                 "date": <Date in YYYY-MM-DD Format>,
@@ -150,51 +141,45 @@ def get_stock_history_prices(
 
 
 @mcp.tool()
-def get_stock_running_at_52week_high() -> list[str] | str:
-    """
-    Returns the list of stock symbols that are currently running at their 52-week high.
+def get_stock_running_at_52week_high() -> list[dict[str, str]] | str:
+    """Returns the list of stock that are currently running at their 52-week high price.
 
-    :params
-        None
-
-    :response
-        List of stock symbols running at 52-week high.
+    Example Output: [
+            {"TCS" : "Tata Consultancy Services Limited"},
+            {"INFY" : "Infosys Limited"}
+        ]
     """
     data: list[Stock52weekAnalysis] | None = get_stock_running_52week_high()
     if data is None:
         return "Unable to fetch 52-week high data from NSE"
 
-    return [item.symbol for item in data]
+    return [{item.symbol: item.comapnyName} for item in data]
 
 
 @mcp.tool()
-def get_stock_running_at_52week_low() -> list[str] | str:
-    """
-    Returns the list of stock symbols that are currently running at their 52-week low.
+def get_stock_running_at_52week_low() -> list[dict[str, str]] | str:
+    """Returns the list of stocks that are currently running at their 52-week low price.
 
-    :params
-        None
-
-    :response
-        List of stock symbols running at 52-week low.
+    Example Output: [
+            {"TCS" : "Tata Consultancy Services Limited"},
+            {"INFY" : "Infosys Limited"}
+        ]
     """
     data: list[Stock52weekAnalysis] | None = get_stock_running_52week_low()
     if data is None:
         return "Unable to fetch 52-week low data from NSE"
 
-    return [item.symbol for item in data]
+    return [{item.symbol: item.comapnyName} for item in data]
 
 
 @mcp.tool()
 def weekly_volume_gainer_stocks() -> list[dict[str, str]] | str:
-    """
-    Returns the list of stocks which are weekly volume gainers.
+    """Returns the list of stocks which are weekly volume gainers.
 
-    :params
-        None
-
-    :response
-        List of object or dictionary where key is stock symbols and value is company name for weekly volume gainers.
+    Example Output: [
+            {"TCS" : "Tata Consultancy Services Limited"},
+            {"INFY" : "Infosys Limited"}
+        ]
     """
     data: list[StockWeeklyVolumeGainers] | None = get_weekly_volume_gainers()
     if data is None:
@@ -209,14 +194,10 @@ def search_nse_companies(search_key: str) -> list[dict[str, str]] | str:
     Search the NSE Database for companies whose name or symbol matches the search key and returns a complete list.
     The search key will be searched in Company name or Symbol and nowhere else.
 
-    :params
+    :PARAMETERS:
         search_key: The key to search for in the NSE companies list.
 
-    :resp
-        A list containing mapping object/dictionary where key is company symbol and value is company name.
-
-    Example Output:
-        [
+    Example Output: [
             {"TCS" : "Tata Consultancy Services Limited"},
             {"INFY" : "Infosys Limited"}
         ]
@@ -228,17 +209,9 @@ def search_nse_companies(search_key: str) -> list[dict[str, str]] | str:
 
 @mcp.tool()
 def available_sectors_and_industries() -> list[str]:
-    """
-    Returns a complete list of Sectors or Industries against which companies are registered.
+    """Returns a complete list of Sectors or Industries against which companies are registered.
 
-    :params
-        None
-
-    :response
-        A list of sectors/industries.
-
-    Example Output:
-        ["IT - Hardware", "Commercial Goods"]
+    Example Output: ["IT - Hardware", "Commercial Goods"]
     """
     return get_unique_sectors_and_industries()
 
@@ -252,15 +225,11 @@ def companies_in_sectors_and_industries(
     The Sector or Industry name should match exactly with that in database.
     Use other tool provided to give complete list of sectors or industries registered in NSE Database first.
 
-    :params
+    :PARAMETERS:
         sectors_or_industries: List of sectors or industries to search the company.
 
-    :response
-        A list containing mapping object/dictionary where key is company symbol and value is company name.
-
     Example Input: ["Information Technology"]
-    Example Output:
-        [
+    Example Output: [
             {"TCS" : "Tata Consultancy Services Limited"},
             {"INFY" : "Infosys Limited"}
         ]
