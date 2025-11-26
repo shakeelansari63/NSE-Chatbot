@@ -10,6 +10,8 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from pydantic import BaseModel, Field, RootModel, SecretStr
 
+from server_config import get_server_config as sc
+
 from .config import get_config
 from .local_tools import get_line_chart_for_data
 from .messages import (
@@ -99,7 +101,19 @@ async def user_command_execution_node(state: GraphState) -> GraphState:
     return state
 
 
-def get_agent_flow():
+async def get_agent_react():
+    # Get All Tools
+    all_tools = await _get_all_tools()
+
+    # Return ReAct agent with all tools
+    return create_agent(
+        model=_get_llm_model(),
+        tools=all_tools,
+        system_prompt=execution_system_message,
+    )
+
+
+async def get_agent_flow():
     # Define new State Graph
     graph = StateGraph(GraphState)
 
@@ -117,3 +131,11 @@ def get_agent_flow():
 
     # Return Agent Flow
     return agent_flow
+
+
+async def get_agent():
+    # Get agent based on config
+    if sc().select_agent_type == "flow":
+        return await get_agent_flow()
+    else:
+        return await get_agent_react()

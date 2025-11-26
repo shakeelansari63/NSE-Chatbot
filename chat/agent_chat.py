@@ -2,16 +2,19 @@ from typing import Any
 
 from gradio import ChatMessage
 
-from agent.graph import GraphState, get_agent_flow
+from agent.graph import get_agent
 
-from .utils import gradio_messages_to_langchain, langchain_messages_to_gradio
+from .utils import (
+    generate_agent_state_from_messages,
+    langchain_messages_to_gradio,
+)
 
 
 async def agent_chat_fn(
     message: str,
     history: list[ChatMessage | dict[str, Any]],
 ) -> list[ChatMessage]:
-    agent = get_agent_flow()
+    agent = await get_agent()
 
     # Refine History
     refined_history: list[ChatMessage] = []
@@ -28,7 +31,8 @@ async def agent_chat_fn(
     refined_history.append(ChatMessage(role="user", content=message))
 
     # Generate State Object
-    state = GraphState(messages=gradio_messages_to_langchain(refined_history))
+    state = generate_agent_state_from_messages(refined_history)
+
     resp = await agent.ainvoke(state)
     return langchain_messages_to_gradio(resp["messages"])
 

@@ -1,6 +1,11 @@
+from typing import Any
+
 from gradio import ChatMessage
 from langchain.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.messages import BaseMessage
+
+from agent.graph import GraphState
+from server_config import get_server_config as sc
 
 
 def langchain_messages_to_gradio(
@@ -45,3 +50,16 @@ def gradio_messages_to_langchain(
         elif message.role == "system":
             langchain_messages.append(SystemMessage(content=str(message.content)))
     return langchain_messages
+
+
+def generate_agent_state_from_messages(
+    messages: list[ChatMessage],
+) -> GraphState | dict[str, Any]:
+    # Convert messages to Langchain format
+    lc_messages = gradio_messages_to_langchain(messages)
+
+    # Use message in state
+    if sc().select_agent_type == "flow":
+        return GraphState(messages=lc_messages)
+    else:
+        return {"messages": lc_messages}
