@@ -33,3 +33,4 @@ reportUnknownVariableType = false
 reportUnknownMemberType = false
 reportExplicitAny = false
 reportAny = false
+reportMissingTypeStubs = false

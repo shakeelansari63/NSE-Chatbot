@@ -1,8 +1,9 @@
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import (
+    BaseMessage,
+    get_buffer_string,
+)
 
-from .model import OpenAIMessage
-
-system_message = (
+execution_system_message = (
     "You are an NSE (National Stock Exchange) Assistant and give informations about Indian National Stock Exchange. "
     "To answer the questions you can use the provided Tools. "
     "Use the provided tool to get current Date and Time if anytime you need current Date time. "
@@ -22,47 +23,27 @@ system_message = (
 )
 
 
-def langchain_messages_to_openai(
-    messages: list[AIMessage | HumanMessage | ToolMessage | SystemMessage],
-):
-    openai_messages: list[OpenAIMessage] = []
-    for message in messages:
-        # Role
-        role = "system"
-        if isinstance(message, AIMessage):
-            # Skip Tool Call where Content was empty
-            if not message.content:
-                continue
-
-            # Otherwise register as Assistant message
-            role = "assistant"
-        elif isinstance(message, HumanMessage):
-            role = "user"
-        elif isinstance(message, ToolMessage):
-            continue
-
-        # Content
-        content: str = str(message.content)
-        if isinstance(message.content, list):
-            content = " ".join([str(item) for item in message.content])
-        openai_messages.append({"role": role, "content": content})
-
-    return openai_messages
-
-
-def openai_messages_to_langchain(
-    messages: list[OpenAIMessage],
-):
-    langchain_messages: list[
-        AIMessage | HumanMessage | ToolMessage | SystemMessage
-    ] = []
-    for message in messages:
-        if message["role"] == "assistant":
-            langchain_messages.append(AIMessage(content=message["content"]))
-        elif message["role"] == "user":
-            langchain_messages.append(HumanMessage(content=message["content"]))
-        elif message["role"] == "function":
-            langchain_messages.append(ToolMessage(content=message["content"]))
-        elif message["role"] == "system":
-            langchain_messages.append(SystemMessage(content=message["content"]))
-    return langchain_messages
+def get_shortlist_message(tools: list[str], user_conversation: list[BaseMessage]):
+    return (
+        "You are a tool shortlisting assistant for NSE Bot who answers the questions about Indian National Stock Exchange (NSE). "
+        "Your task is to help short list the tools which are needed for answering the user's question. "
+        "You will be given user conversation and a comma separated list of tool names without any description. "
+        "Based on your knowledge, identify which tools are likely needed to answer the user's question. "
+        "If you are in a doubt whether some tool is needed or not, consider it as needed. "
+        "IMPORTANT: DO NOT EXECUTE ANY TOOL OR MAKE A TOOL CALL. "
+        "AND Always Select the Tools which provide current Date and Helps to search Companies in NSE Database as they will be needed. "
+        "If User ask for History trend, do not forget the Chart building tool to visualize the data. "
+        "Your ONLY objective is just to shortlist the tools and return the shortlisted tools. "
+        "If NO tools is needed, return EMPTY list. "
+        "Example 1: \n\tAll Tools: search_stock, get_stock_price, get_stock_history_price, get_chart_from_data"
+        "\n\tQuestion: How has TCS performed in last 1 year"
+        '\n\tAnswer: ["search_stock", "get_stock_price", "get_stock_history_price", "get_chart_from_data"]'
+        "Example 2: "
+        "\n\tQuestion: What "
+        "\n\tAnswer: []"
+        "Example 3: "
+        "\n\tQuestion: Hello !!"
+        "\n\tAnswer: []"
+        f"Here is the list of all tools: {', '.join(tools)}\n\n"
+        f"AND here is the complete conversations: \n{get_buffer_string(user_conversation)}"
+    )

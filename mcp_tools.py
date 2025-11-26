@@ -189,7 +189,9 @@ def weekly_volume_gainer_stocks() -> list[dict[str, str]] | str:
 
 
 @mcp.tool()
-def search_nse_companies(search_key: str) -> list[dict[str, str]] | str:
+def search_nse_stocks_by_name_or_symbol(
+    search_key: str,
+) -> list[dict[str, str]] | str:
     """
     Search the NSE Database for companies whose name or symbol matches the search key and returns a complete list.
     The search key will be searched in Company name or Symbol and nowhere else.
@@ -208,7 +210,7 @@ def search_nse_companies(search_key: str) -> list[dict[str, str]] | str:
 
 
 @mcp.tool()
-def available_sectors_and_industries() -> list[str]:
+def get_all_available_sectors_and_industries_names() -> list[str]:
     """Returns a complete list of Sectors or Industries against which companies are registered.
 
     Example Output: ["IT - Hardware", "Commercial Goods"]
@@ -217,7 +219,7 @@ def available_sectors_and_industries() -> list[str]:
 
 
 @mcp.tool()
-def companies_in_sectors_and_industries(
+def get_stocks_in_sectors_and_industries(
     sectors_or_industries: list[str],
 ) -> list[dict[str, str]]:
     """

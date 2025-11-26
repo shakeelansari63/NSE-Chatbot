@@ -1,25 +1,10 @@
 import gradio as gr
 
 from agent.config import get_provider_models, get_provider_url, set_llm_config
-from agent.graph import get_agent
-from agent.messages import langchain_messages_to_openai
-from agent.model import OpenAIMessage
+from chat.agent_chat import agent_chat_fn, send_message_to_ui
 
 from .examples import get_examples, strip_example
 from .theme import app_css, app_theme
-
-
-async def chat_app(message: str, history: list[OpenAIMessage]):
-    agent = await get_agent()
-
-    # Add User question to history
-    history.append(OpenAIMessage(role="user", content=message))
-    resp = await agent.ainvoke({"messages": history})
-    return langchain_messages_to_openai(resp["messages"])
-
-
-def send_message_to_ui(message: str, history: list[OpenAIMessage]):
-    return [*history, OpenAIMessage(role="user", content=message)], ""
 
 
 def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
@@ -155,11 +140,11 @@ with gr.Blocks(
         )
 
     # Event Handlers
-    send_button.click(chat_app, inputs=[text_input, chatbot], outputs=chatbot)
+    send_button.click(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
     send_button.click(
         send_message_to_ui, inputs=[text_input, chatbot], outputs=[chatbot, text_input]
     )
-    text_input.submit(chat_app, inputs=[text_input, chatbot], outputs=chatbot)
+    text_input.submit(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
     text_input.submit(
         send_message_to_ui, inputs=[text_input, chatbot], outputs=[chatbot, text_input]
     )
