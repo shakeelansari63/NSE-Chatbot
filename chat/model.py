@@ -1,6 +1,11 @@
 from typing import TypedDict
 
 
-class GradioChatMessage(TypedDict):
+class GradioMessageContent(TypedDict):
+    type: str
+    text: str
+
+
+class GradioMessage(TypedDict):
     role: str
-    content: str
+    content: list[GradioMessageContent]

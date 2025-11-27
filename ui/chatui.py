@@ -40,8 +40,6 @@ def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
 # ui = gr.ChatInterface(chat_app, type="messages")
 with gr.Blocks(
     title="NSE Chatbot",
-    theme=app_theme,
-    css=app_css,
 ) as ui:
     # Header
     with gr.Row():
@@ -95,7 +93,6 @@ with gr.Blocks(
     with gr.Row():
         with gr.Group():
             chatbot = gr.Chatbot(
-                type="messages",
                 show_label=False,
                 resizable=True,
                 height=400,
@@ -140,11 +137,12 @@ with gr.Blocks(
         )
 
     # Event Handlers
-    send_button.click(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
     send_button.click(
         send_message_to_ui, inputs=[text_input, chatbot], outputs=[chatbot, text_input]
     )
-    text_input.submit(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
+    send_button.click(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
+
     text_input.submit(
         send_message_to_ui, inputs=[text_input, chatbot], outputs=[chatbot, text_input]
     )
+    text_input.submit(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)

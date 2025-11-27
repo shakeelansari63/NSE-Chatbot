@@ -10,6 +10,7 @@ from dbman.actions import refresh_market_metadata
 from mcp_tools import mcp as mcp_app
 from server_config import get_server_config as sc
 from ui.chatui import ui as gradio_ui
+from ui.theme import app_css, app_theme
 
 # Create MCP HTTP App
 mcp_http_app = mcp_app.http_app(path="/")
@@ -46,7 +47,13 @@ async def refresh_metadata():
 
 
 # Mount Gradio UI on App
-app = gr.mount_gradio_app(app, gradio_ui, path=sc().ui_path)
+app = gr.mount_gradio_app(
+    app,
+    gradio_ui,
+    path=sc().ui_path,
+    theme=app_theme,
+    css=app_css,
+)
 
 # Mount MCP ON app
 app.mount(sc().mcp_path, mcp_http_app)
