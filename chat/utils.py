@@ -1,17 +1,18 @@
 from typing import Any
 
-from gradio import ChatMessage
 from langchain.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_core.messages import BaseMessage
 
 from agent.graph import GraphState
 from server_config import get_server_config as sc
 
+from .model import GradioChatMessage
+
 
 def langchain_messages_to_gradio(
     messages: list[BaseMessage],
-) -> list[ChatMessage]:
-    gradio_messages: list[ChatMessage] = []
+) -> list[GradioChatMessage]:
+    gradio_messages: list[GradioChatMessage] = []
     for message in messages:
         # Role
         role = "system"
@@ -33,27 +34,27 @@ def langchain_messages_to_gradio(
         content: str = str(message.content)
         if isinstance(message.content, list):
             content = " ".join([str(item) for item in message.content])
-        gradio_messages.append(ChatMessage(role=role, content=content))
+        gradio_messages.append(GradioChatMessage(role=role, content=content))
 
     return gradio_messages
 
 
 def gradio_messages_to_langchain(
-    messages: list[ChatMessage],
+    messages: list[GradioChatMessage],
 ) -> list[BaseMessage]:
     langchain_messages: list[BaseMessage] = []
     for message in messages:
-        if message.role == "assistant":
-            langchain_messages.append(AIMessage(content=str(message.content)))
-        elif message.role == "user":
-            langchain_messages.append(HumanMessage(content=str(message.content)))
-        elif message.role == "system":
-            langchain_messages.append(SystemMessage(content=str(message.content)))
+        if message["role"] == "assistant":
+            langchain_messages.append(AIMessage(content=str(message["content"])))
+        elif message["role"] == "user":
+            langchain_messages.append(HumanMessage(content=str(message["content"])))
+        elif message["role"] == "system":
+            langchain_messages.append(SystemMessage(content=str(message["content"])))
     return langchain_messages
 
 
 def generate_agent_state_from_messages(
-    messages: list[ChatMessage],
+    messages: list[GradioChatMessage],
 ) -> GraphState | dict[str, Any]:
     # Convert messages to Langchain format
     lc_messages = gradio_messages_to_langchain(messages)
