@@ -14,15 +14,18 @@ def langchain_messages_to_gradio(
 ) -> list[GradioMessage]:
     gradio_messages: list[GradioMessage] = []
     for message in messages:
-        # Role
-        role = "system"
-        if isinstance(message, AIMessage):
-            # Skip Tool Call where Content was empty
-            if not message.content:
-                continue
+        # Skip Tool Call where Content is empty
+        if not message.content:
+            continue
 
-            # Otherwise register as Assistant message
+        # Default Role is System
+        role = "system"
+
+        # For AI Message, set role to assistant
+        if isinstance(message, AIMessage):
             role = "assistant"
+
+        # For Human Message, set role to user
         elif isinstance(message, HumanMessage):
             role = "user"
 
