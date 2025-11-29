@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlmodel import Field, SQLModel
 
 
@@ -11,3 +13,4 @@ class NSEMetadata(SQLModel, table=True):
     total_traded_volume_in_lakhs: float = Field(default=0)
     total_traded_value_in_crore: float = Field(default=0)
     total_market_cap_in_crore: float = Field(default=0)
+    refresh_dtm: datetime | None = Field(default_factory=datetime.now)

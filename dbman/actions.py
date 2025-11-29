@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 
 from dbman.nse_metadata import NSEMetadata
 from nse.helper import get_all_market_pre_open, get_stock_details
@@ -22,6 +23,7 @@ def task_executor(symbol: str):
             total_traded_volume_in_lakhs=stock_detail.tradeInfo.totalTradedVolume,
             total_traded_value_in_crore=stock_detail.tradeInfo.totalTradedValue,
             total_market_cap_in_crore=stock_detail.tradeInfo.totalMarketCap,
+            refresh_dtm=datetime.now(),
         )
     )
 
