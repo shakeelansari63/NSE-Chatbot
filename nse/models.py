@@ -313,3 +313,58 @@ class NSECompanyListWithMatchScore(FlexibleBaseModel):
     companyName: str
     nameScore: int
     symbolScore: int
+
+
+class CorporateBoardMeetingData(FlexibleBaseModel):
+    meetingdate: str
+    purpose: str
+    symbol: str
+
+
+class CorporateBoardMeetingInfo(FlexibleBaseModel):
+    data: list[CorporateBoardMeetingData]
+
+
+class CorporateActionsData(FlexibleBaseModel):
+    exdate: str
+    purpose: str
+    symbol: str
+
+
+class CorporateActionsInfo(FlexibleBaseModel):
+    data: list[CorporateActionsData]
+
+
+class CorporateFinancialResultsData(FlexibleBaseModel):
+    from_date: str | None
+    to_date: str | None
+    income: str | float | None
+    expenditure: str | float | None
+    reProLossBefTax: str | float | None
+    proLossAftTax: str | float | None
+
+
+class CorporateFinancialResultsInfo(FlexibleBaseModel):
+    data: list[CorporateFinancialResultsData]
+
+
+class CorporateLatestAnnouncementsData(FlexibleBaseModel):
+    broadcastdate: str
+    subject: str
+    symbol: str
+
+
+class CorporateLatestAnnouncementsInfo(FlexibleBaseModel):
+    data: list[CorporateLatestAnnouncementsData]
+
+
+class CorporateShareHoldingPatternInfo(FlexibleBaseModel):
+    data: dict[str, list[dict[str, str]]]
+
+
+class CorporateFilingInfoResponse(FlexibleBaseModel):
+    borad_meeting: CorporateBoardMeetingInfo
+    corporate_actions: CorporateActionsInfo
+    financial_results: CorporateFinancialResultsInfo
+    latest_announcements: CorporateLatestAnnouncementsInfo
+    shareholdings_patterns: CorporateShareHoldingPatternInfo

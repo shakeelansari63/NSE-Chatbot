@@ -2,6 +2,7 @@ from functools import cache
 
 from . import config as conf
 from .models import (
+    CorporateFilingInfoResponse,
     MarketPreOpenApiResponse,
     MarketPreOpenMcp,
     MarketStatus,
@@ -161,3 +162,16 @@ def get_weekly_volume_gainers() -> list[StockWeeklyVolumeGainers] | None:
         return None
     data = StockWeeklyVolumeGainerResponse.model_validate(data)
     return data.data
+
+
+def get_stock_corporate_filing_info(
+    symbol: str,
+) -> CorporateFilingInfoResponse | None:
+    data = _get_nse_client().get_nse_data(
+        conf.CORPORATE_FILING_INFORMATION, {"symbol": symbol, "market": "equities"}
+    )
+    if data is None:
+        return None
+
+    data = CorporateFilingInfoResponse.model_validate(data)
+    return data

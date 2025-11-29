@@ -7,6 +7,7 @@ STOCKS_52_HIGH = f"{BASE_URL}/api/live-analysis-data-52weekhighstock"
 STOCKS_52_LOW = f"{BASE_URL}/api/live-analysis-data-52weeklowstock"
 WEEKLY_VOLUME_GAINERS = f"{BASE_URL}/api/live-analysis-volume-gainers"
 NSE_STOCK_HISTORY = f"{BASE_URL}/api/historical/cm/equity"
+CORPORATE_FILING_INFORMATION = f"{BASE_URL}/api/top-corp-info"
 
 
 NSE_HEADER: dict[str, str] = {
