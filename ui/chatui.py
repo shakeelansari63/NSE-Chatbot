@@ -4,7 +4,6 @@ from agent.config import get_provider_models, get_provider_url, set_llm_config
 from chat.agent_chat import agent_chat_fn, send_message_to_ui
 
 from .examples import get_examples, strip_example
-from .theme import app_css, app_theme
 
 
 def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
