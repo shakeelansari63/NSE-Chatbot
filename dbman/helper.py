@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlmodel import Session, create_engine, func, select
 
 from server_config import get_server_config as sc
@@ -42,142 +44,111 @@ def delete_outdated_symbols(symbols: list[str]):
         session.commit()
 
 
-# Search NSE Company
-def search_nse_company_indb(search_key: str) -> list[NSEMetadata]:
+def search_nse_data_in_db(
+    search_key: str,
+    search_fields: list[Any],
+) -> list[NSEMetadata]:
     with Session(engine) as session:
         # Output
         output: list[NSEMetadata] = []
 
-        # Find Top 2 Companies where name starts with search key
-        q_search_by_name_starts_with = (
-            select(NSEMetadata)
-            .where(func.lower(NSEMetadata.name).like(f"{search_key.lower()}%"))
-            .limit(2)
-        )
-
-        search_by_name_starts_with = session.exec(q_search_by_name_starts_with).all()
-
-        # Add to output
-        output.extend(search_by_name_starts_with)
-
-        # Find Top 2 Companies where name contains search key
-        q_search_by_name_contains = (
-            select(NSEMetadata)
-            .where(
-                NSEMetadata.symbol.not_in([op.symbol for op in output]),
-                func.lower(NSEMetadata.name).like(f"%{search_key.lower()}%"),
+        # Search with Likes
+        for field in search_fields:
+            # Search where field value starts with search key
+            q_search_by_field_start = (
+                select(NSEMetadata)
+                .where(
+                    NSEMetadata.symbol.not_in([op.symbol for op in output]),
+                    func.lower(field).like(f"{search_key.lower()}%"),
+                )
+                .limit(3)
             )
-            .limit(2)
-        )
+            search_by_field_start = session.exec(q_search_by_field_start).all()
+            output.extend(search_by_field_start)
 
-        search_by_name_contains = session.exec(q_search_by_name_contains).all()
-
-        # Add to output
-        output.extend(search_by_name_contains)
-
-        # Find top 2 with trigram similarity in Name
-        q_search_by_trgm_name = (
-            select(NSEMetadata)
-            .where(NSEMetadata.symbol.not_in([op.symbol for op in output]))
-            .order_by(
-                func.similarity(func.lower(NSEMetadata.name), search_key.lower()).desc()
+            # Search where field value contains search key
+            q_search_by_field_contains = (
+                select(NSEMetadata)
+                .where(
+                    NSEMetadata.symbol.not_in([op.symbol for op in output]),
+                    func.lower(field).like(f"%{search_key.lower()}%"),
+                )
+                .limit(3)
             )
-            .limit(2 if len(output) >= 4 else 3)
-        )
+            search_by_field_contains = session.exec(q_search_by_field_contains).all()
+            output.extend(search_by_field_contains)
 
-        # Get 2 rows
-        search_by_trgm_name = session.exec(q_search_by_trgm_name).all()
-
-        # Add to output
-        output.extend(search_by_trgm_name)
-
-        # Find top 2 with trigram similarity in Symbol
-        q_search_by_trgm_symbol = (
-            select(NSEMetadata)
-            .where(NSEMetadata.symbol.not_in([op.symbol for op in output]))
-            .order_by(
-                func.similarity(
-                    func.lower(NSEMetadata.symbol), search_key.lower()
-                ).desc()
+        # Search More with Trigram and Levenshtein similarity
+        for field in search_fields:
+            # Trigram Similarity
+            q_search_by_trgm = (
+                select(NSEMetadata)
+                .where(NSEMetadata.symbol.not_in([op.symbol for op in output]))
+                .order_by(func.similarity(func.lower(field), search_key.lower()).desc())
+                .limit(3)
             )
-            .limit(2 if len(output) >= 6 else 3)
-        )
 
-        search_by_trgm_symbol = session.exec(q_search_by_trgm_symbol).all()
+            # Get 3 rows
+            search_by_trgm = session.exec(q_search_by_trgm).all()
+            output.extend(search_by_trgm)
 
-        # Add to output
-        output.extend(search_by_trgm_symbol)
-
-        # Find top 2 with levenshtein distance in Name
-        q_search_by_lvsn_name = (
-            select(NSEMetadata)
-            .where(NSEMetadata.symbol.not_in([op.symbol for op in output]))
-            .order_by(
-                func.levenshtein(func.lower(NSEMetadata.name), search_key.lower())
+            # Levenshtein Similarity
+            q_search_by_lvsn_symbol = (
+                select(NSEMetadata)
+                .where(NSEMetadata.symbol.not_in([op.symbol for op in output]))
+                .order_by(func.levenshtein(func.lower(field), search_key.lower()))
+                .limit(3)
             )
-            .limit(2 if len(output) >= 8 else 3)
-        )
 
-        search_by_lvsn_name = session.exec(q_search_by_lvsn_name).all()
+            # Get 3 rows
+            search_by_lvsn_symbol = session.exec(q_search_by_lvsn_symbol).all()
 
-        # Add to output
-        output.extend(search_by_lvsn_name)
+            # Add to output
+            output.extend(search_by_lvsn_symbol)
 
-        # Find top 2 with levenshtein distance in Symbol
-        q_search_by_lvsn_symbol = (
-            select(NSEMetadata)
-            .where(NSEMetadata.symbol.not_in([op.symbol for op in output]))
-            .order_by(
-                func.levenshtein(func.lower(NSEMetadata.symbol), search_key.lower())
-            )
-            .limit(2 if len(output) >= 10 else 3)
-        )
-
-        search_by_lvsn_symbol = session.exec(q_search_by_lvsn_symbol).all()
-
-        # Add to output
-        output.extend(search_by_lvsn_symbol)
-
-        # Give final output
+        # Return Output
         return output
 
 
-def get_unique_sectors_and_industries() -> list[str]:
-    with Session(engine) as session:
-        q_sector = select(NSEMetadata.sector).group_by(NSEMetadata.sector)
-        q_industries = select(NSEMetadata.industry).group_by(NSEMetadata.industry)
-        q_industry_info = select(NSEMetadata.industry_info).group_by(
-            NSEMetadata.industry_info
+# Search NSE Company
+def search_nse_company_by_name_or_symbol_indb(search_key: str) -> list[NSEMetadata]:
+    return search_nse_data_in_db(
+        search_key=search_key, search_fields=[NSEMetadata.name, NSEMetadata.symbol]
+    )
+
+
+def search_sector_or_industry_indb(search_key: str) -> list[str]:
+    sector_or_industries = search_nse_data_in_db(
+        search_key=search_key,
+        search_fields=[
+            NSEMetadata.sector,
+            NSEMetadata.industry,
+            NSEMetadata.industry_info,
+        ],
+    )
+    return list(
+        set(
+            [sector_or_industry.industry for sector_or_industry in sector_or_industries]
         )
-        q_sector_industries = q_sector.union(q_industries, q_industry_info)
-
-        sector_industries: list[str] = [
-            row[0] for row in session.exec(q_sector_industries).all()
-        ]
-
-        return sector_industries
+    )
 
 
-def get_companies_in_sectors_or_industries(
-    sectors_or_industries: list[str],
+def get_companies_in_specified_industry(
+    industry_keys: list[str],
     top_n: int = 10,
 ) -> list[dict[str, str]]:
     with Session(engine) as session:
         q_company_in_sector_industry = (
             select(NSEMetadata)
-            .where(
-                (NSEMetadata.sector.in_(sectors_or_industries))
-                | (NSEMetadata.industry.in_(sectors_or_industries))
-                | (NSEMetadata.industry_info.in_(sectors_or_industries))
-            )
+            .where(NSEMetadata.industry.in_(industry_keys))
             .order_by(NSEMetadata.total_market_cap_in_crore.desc())
             .limit(top_n)
         )
 
         # Get data
-        company_in_sector_industry = [
+        company_in_industry = [
             {row.symbol: row.name}
             for row in session.exec(q_company_in_sector_industry).all()
         ]
 
-        return company_in_sector_industry
+        return company_in_industry

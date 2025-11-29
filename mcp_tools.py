@@ -4,9 +4,9 @@ from typing import Any
 from fastmcp import FastMCP
 
 from dbman.helper import (
-    get_companies_in_sectors_or_industries,
-    get_unique_sectors_and_industries,
-    search_nse_company_indb,
+    get_companies_in_specified_industry,
+    search_nse_company_by_name_or_symbol_indb,
+    search_sector_or_industry_indb,
 )
 from nse.helper import (
     get_capital_market_state,
@@ -204,29 +204,31 @@ def search_nse_stocks_by_name_or_symbol(
             {"INFY" : "Infosys Limited"}
         ]
     """
-    companies = search_nse_company_indb(search_key)
+    companies = search_nse_company_by_name_or_symbol_indb(search_key)
 
     return [{company.symbol: company.name} for company in companies]
 
 
 @mcp.tool()
-def get_all_available_sectors_and_industries_names() -> list[str]:
-    """Returns a complete list of Sectors or Industries against which companies are registered.
+def search_nse_sector_or_industry_keys(search_key: str) -> list[str]:
+    """Returns a list of NSE registered Industries keys which match the search key.
+    These keys can be used to search companies in specific industry.
 
-    Example Output: ["IT - Hardware", "Commercial Goods"]
+    Example Input: "IT"
+    Example Output: ["IT - Hardware", "Information Technology"]
     """
-    return get_unique_sectors_and_industries()
+    return search_sector_or_industry_indb(search_key)
 
 
 @mcp.tool()
-def get_top_stocks_in_specific_sectors_and_industries(
-    sectors_or_industries: list[str],
+def get_top_stocks_in_industries_by_industry_keys(
+    industry_keys: list[str],
     top_n: int | None = 10,
 ) -> list[dict[str, str]]:
     """
-    Search the NSE database for list of companies which operate in provided sector or industry and returns top list of companies with their symbols.
-    The Sector or Industry name should match exactly with that in database.
-    Use other tool provided to give complete list of sectors or industries registered in NSE Database first.
+    Search the NSE database for list of companies which operate in provided industry and returns list of top n stocks by market cap.
+    !IMPORTANT: The Industry key should match exactly with that in database.
+    Use the other provided tool to search keys for industries registered in NSE Database first.
 
     :PARAMETERS:
         sectors_or_industries: List of sectors or industries to search the company.
@@ -241,4 +243,4 @@ def get_top_stocks_in_specific_sectors_and_industries(
     if top_n is None:
         top_n = 10
 
-    return get_companies_in_sectors_or_industries(sectors_or_industries, top_n)
+    return get_companies_in_specified_industry(industry_keys, top_n)

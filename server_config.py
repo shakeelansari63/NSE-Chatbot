@@ -36,7 +36,7 @@ class ServerConfig(BaseSettings):
     # `react` - Simple ReAct Agent
     # or
     # `flow` - MultiAgent Flow
-    select_agent_type: str = "react"
+    select_agent_type: str = "flow"
 
     # Generate DB URL from Config
     @computed_field
