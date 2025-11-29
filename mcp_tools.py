@@ -219,16 +219,18 @@ def get_all_available_sectors_and_industries_names() -> list[str]:
 
 
 @mcp.tool()
-def get_stocks_in_sectors_and_industries(
+def get_top_stocks_in_specific_sectors_and_industries(
     sectors_or_industries: list[str],
+    top_n: int | None = 10,
 ) -> list[dict[str, str]]:
     """
-    Search the NSE database for list of companies which operate in provided sector or industry and returns complete list of companies with their symbols.
+    Search the NSE database for list of companies which operate in provided sector or industry and returns top list of companies with their symbols.
     The Sector or Industry name should match exactly with that in database.
     Use other tool provided to give complete list of sectors or industries registered in NSE Database first.
 
     :PARAMETERS:
         sectors_or_industries: List of sectors or industries to search the company.
+        top_n: Optional integer parameter to specify the top number of companies to return. Defaults to 10 if not provided.
 
     Example Input: ["Information Technology"]
     Example Output: [
@@ -236,4 +238,7 @@ def get_stocks_in_sectors_and_industries(
             {"INFY" : "Infosys Limited"}
         ]
     """
-    return get_companies_in_sectors_or_industries(sectors_or_industries)
+    if top_n is None:
+        top_n = 10
+
+    return get_companies_in_sectors_or_industries(sectors_or_industries, top_n)

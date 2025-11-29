@@ -1,5 +1,4 @@
 from functools import cache
-from typing import Any
 
 from . import config as conf
 from .models import (
@@ -8,12 +7,14 @@ from .models import (
     MarketStatus,
     MarketStatusApiResp,
     MarketStatusMcp,
+    OrderBookTradeInfo,
     Stock52weekAnalysis,
     Stock52WeekHighResponse,
     Stock52WeekLowResponse,
     StockDetailResponse,
     StockHistoryData,
     StockHistoryDataResponse,
+    StockTradeDetailResponse,
     StockWeeklyVolumeGainerResponse,
     StockWeeklyVolumeGainers,
 )
@@ -72,13 +73,35 @@ def get_all_market_pre_open() -> list[MarketPreOpenMcp] | None:
     ]
 
 
-def get_stock_details(symbol: str) -> StockDetailResponse | None:
+def get_stock_details(
+    symbol: str,
+    with_trade: bool = False,
+) -> StockDetailResponse | None:
+    # Get Stock Data
     data = _get_nse_client().get_nse_data(conf.STOCK_QUOTE_URL, {"symbol": symbol})
 
     if data is None:
         return None
 
+    data["tradeInfo"] = OrderBookTradeInfo().model_dump()
     stock_data = StockDetailResponse.model_validate(data)
+
+    # If trade info not requested, return the data
+    if not with_trade:
+        return stock_data
+
+    # Get Stock Trade Data
+    trade_data = _get_nse_client().get_nse_data(
+        conf.STOCK_QUOTE_URL, {"symbol": symbol, "section": "trade_info"}
+    )
+
+    if trade_data is None:
+        return stock_data
+
+    stock_trade_data = StockTradeDetailResponse.model_validate(trade_data)
+
+    # Set Trade Info
+    stock_data.tradeInfo = stock_trade_data.marketDeptOrderBook.tradeInfo
     return stock_data
 
 

@@ -42,8 +42,11 @@ async def redirect_to_ui():
 # Add Route to Refresh Equity Metadata
 @app.get("/refresh")
 async def refresh_metadata():
+    start_time = datetime.now()
     await refresh_market_metadata()
-    return f"Refreshed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    end_time = datetime.now()
+    elapsed_seconds = (end_time - start_time).total_seconds()
+    return f"Refreshed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} in {elapsed_seconds // 60} minutes {elapsed_seconds % 60} seconds"
 
 
 # Mount Gradio UI on App

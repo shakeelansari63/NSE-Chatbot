@@ -160,6 +160,7 @@ def get_unique_sectors_and_industries() -> list[str]:
 
 def get_companies_in_sectors_or_industries(
     sectors_or_industries: list[str],
+    top_n: int = 10,
 ) -> list[dict[str, str]]:
     with Session(engine) as session:
         q_company_in_sector_industry = (
@@ -169,7 +170,8 @@ def get_companies_in_sectors_or_industries(
                 | (NSEMetadata.industry.in_(sectors_or_industries))
                 | (NSEMetadata.industry_info.in_(sectors_or_industries))
             )
-            .order_by(NSEMetadata.name)
+            .order_by(NSEMetadata.total_market_cap_in_crore.desc())
+            .limit(top_n)
         )
 
         # Get data

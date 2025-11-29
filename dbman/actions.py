@@ -7,7 +7,7 @@ from .helper import delete_outdated_symbols, save_nse_metadata
 
 
 def task_executor(symbol: str):
-    stock_detail = get_stock_details(symbol)
+    stock_detail = get_stock_details(symbol, with_trade=True)
     if stock_detail is None:
         return
 
@@ -19,6 +19,9 @@ def task_executor(symbol: str):
             sector=stock_detail.industryInfo.sector,
             industry=stock_detail.industryInfo.industry,
             industry_info=stock_detail.industryInfo.basicIndustry,
+            total_traded_volume_in_lakhs=stock_detail.tradeInfo.totalTradedVolume,
+            total_traded_value_in_crore=stock_detail.tradeInfo.totalTradedValue,
+            total_market_cap_in_crore=stock_detail.tradeInfo.totalMarketCap,
         )
     )
 

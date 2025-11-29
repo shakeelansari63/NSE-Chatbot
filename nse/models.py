@@ -178,6 +178,46 @@ class PreOpenMarket(FlexibleBaseModel):
     prevClose: float
 
 
+class OrderBookAskBidInfo(FlexibleBaseModel):
+    price: float
+    quantity: float
+
+
+class OrderBookTradeInfo(FlexibleBaseModel):
+    activeSeries: str = "EQ"
+    cmAnnualVolatility: str | float = "0"
+    cmDailyVolatility: str | float = "0"
+    ffmc: float = 0
+    impactCost: float = 0
+    totalMarketCap: float = 0
+    totalTradedValue: float = 0
+    totalTradedVolume: float = 0
+
+
+class MarketDepotOrderBookInfo(FlexibleBaseModel):
+    bid: list[OrderBookAskBidInfo]
+    ask: list[OrderBookAskBidInfo]
+    open: float
+    totalBuyQuantity: float
+    totalSellQuantity: float
+    tradeInfo: OrderBookTradeInfo
+
+
+class SecurityWiseDelPosInfo(FlexibleBaseModel):
+    deliveryQuantity: float
+    deliveryToTradedQuantity: float
+    quantityTraded: float
+    secWiseDelPosDate: str
+    seriesRemarks: Any
+
+
+class StockTradeDetailResponse(FlexibleBaseModel):
+    bulkBlockDeals: list[Any]
+    marketDeptOrderBook: MarketDepotOrderBookInfo
+    noBlockDeals: Any
+    securityWiseDP: SecurityWiseDelPosInfo
+
+
 class StockDetailResponse(FlexibleBaseModel):
     info: StockInfo
     metadata: Any
@@ -187,6 +227,7 @@ class StockDetailResponse(FlexibleBaseModel):
     priceInfo: PriceInfo
     industryInfo: IndustryInfo
     preOpenMarket: PreOpenMarket
+    tradeInfo: OrderBookTradeInfo
 
 
 class StockDetailMcpResponse(FlexibleBaseModel):
