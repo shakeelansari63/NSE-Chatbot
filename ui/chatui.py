@@ -117,17 +117,19 @@ with gr.Blocks(
         )
     # Examples
     with gr.Row():
-        ex1 = gr.Button("", elem_classes=["example-button"], variant="huggingface")
-        ex2 = gr.Button("", elem_classes=["example-button"], variant="huggingface")
-        ex3 = gr.Button("", elem_classes=["example-button"], variant="huggingface")
+        ex1 = gr.Button("", variant="huggingface")
+        ex2 = gr.Button("", variant="huggingface")
+        ex3 = gr.Button("", variant="huggingface")
+        ex4 = gr.Button("", variant="huggingface")
 
         # Get New Examples on Every Load
-        ui.load(get_examples, inputs=None, outputs=[ex1, ex2, ex3])
+        ui.load(get_examples, inputs=None, outputs=[ex1, ex2, ex3, ex4])
 
         # Set Text on Example Click
         ex1.click(lambda x: strip_example(x), inputs=ex1, outputs=text_input)
         ex2.click(lambda x: strip_example(x), inputs=ex2, outputs=text_input)
         ex3.click(lambda x: strip_example(x), inputs=ex3, outputs=text_input)
+        ex4.click(lambda x: strip_example(x), inputs=ex4, outputs=text_input)
 
     # Bottom Disclaimer
     with gr.Row():

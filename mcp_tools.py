@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from fastmcp import FastMCP
@@ -10,6 +10,7 @@ from dbman.helper import (
 )
 from nse.helper import (
     get_capital_market_state,
+    get_stock_corporate_filing_info,
     get_stock_details,
     get_stock_history_for_specific_range,
     get_stock_running_52week_high,
@@ -91,13 +92,14 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
 
 
 @mcp.tool()
-def get_stock_history_prices(
+def get_stock_history_prices_for_range_not_more_than_1_year(
     symbol: str,
     from_date: str,
     to_date: str,
 ) -> dict[str, Any] | str:
     """
-    Returns the historical prices of a stock for selected date range.
+    Returns the historical prices of a stock for selected date range. Make sure the range is not more than 1 year.
+    This tool does not support giving data for range more than 1 year.
 
     :PARAMETERS:
         symbol: Stock Symbol
@@ -244,3 +246,101 @@ def get_top_stocks_in_industries_by_industry_keys(
         top_n = 10
 
     return get_companies_in_specified_industry(industry_keys, top_n)
+
+
+@mcp.tool()
+def analyse_stock_corporate_filings_financial_results_corporate_actions(
+    symbol: str,
+) -> dict[str, Any]:
+    """Returns a dictionary containing last board meeting detail, latest financial results,
+    corporate actions like dividend, last few announcements and Shareholding pattern for a given stock symbol.
+
+    :PARAMETERS:
+        symbol: The stock symbol to search for.
+
+    Example Input: "TCS"
+    Example Output: {
+        "Latest Board Meeting": "<Details of latest board meeting>",
+        "Latest Financial Results": "<Latest Financial Results>",
+        "Latest Corporate Actions": "<Corporate Actions like dividend etc>",
+        "Latest Shareholding Pattern": <Current Shareholding Pattern like percent share held by public / employees>,
+    }
+    """
+    detail = get_stock_corporate_filing_info(symbol)
+
+    if detail is None:
+        return {"Error": f"Corporate filings not found for {symbol}"}
+
+    # Latest Board Meeting annnouncement
+    latest_board_meeting = (
+        detail.borad_meeting.data[0] if len(detail.borad_meeting.data) > 0 else None
+    )
+
+    latest_board_meeting_details = (
+        f"{latest_board_meeting.meetingdate}: {latest_board_meeting.purpose}"
+        if latest_board_meeting
+        else "No Information Available"
+    )
+
+    # Latest Financial Results
+    latest_financial_results = (
+        detail.financial_results.data[0]
+        if len(detail.financial_results.data) > 0
+        else None
+    )
+
+    latest_financial_results_details = (
+        f"from: {latest_financial_results.from_date if latest_financial_results.from_date else 'NA'}, "
+        + f"to: {latest_financial_results.to_date if latest_financial_results.to_date else 'NA'}, "
+        + f"income (₹ Crores): {latest_financial_results.income if latest_financial_results.income else 'NA'}, "
+        + f"earning per share (₹): {latest_financial_results.reDilEPS if latest_financial_results.reDilEPS else 'NA'}, "
+        + f"profit / loss before tax (₹ Crores): {latest_financial_results.reProLossBefTax if latest_financial_results.reProLossBefTax else 'NA'}, "
+        + f"net profit / loss (₹ Crores): {latest_financial_results.proLossAftTax if latest_financial_results.proLossAftTax else 'NA'}"
+        if latest_financial_results
+        else "No Information Available"
+    )
+
+    # Take Top 5 Corporate Actions
+    latest_corporate_actions = (
+        detail.corporate_actions.data[:5]
+        if len(detail.corporate_actions.data) > 5
+        else detail.corporate_actions.data
+    )
+
+    latest_corporate_actions_details = (
+        ", ".join(
+            [
+                f"{action.exdate}: {action.purpose}"
+                for action in latest_corporate_actions
+            ]
+        )
+        if latest_corporate_actions
+        else "No Information Available"
+    )
+
+    # Take latest Shareholding Pattern
+    latest_shareholding_pattern_date, latest_shareholding_pattern = max(
+        detail.shareholdings_patterns.data.items(),
+        key=lambda x: datetime.strptime(x[0], "%d-%b-%Y"),
+    )
+
+    latest_shareholding_pattern_details = (
+        f"date: {latest_shareholding_pattern_date if latest_shareholding_pattern_date else 'NA'}, "
+        + ", ".join(
+            [
+                f"{list(shareholder.items())[0][0]}: {list(shareholder.items())[0][1]}%"
+                for shareholder in latest_shareholding_pattern
+                if len(list(shareholder.items())) > 0
+            ]
+        )
+        if latest_shareholding_pattern
+        else "No Information Available"
+    )
+
+    # Return Final Detail
+    return {
+        "Latest Board Meeting": latest_board_meeting_details,
+        "Financial Results": latest_financial_results_details,
+        "Corporate Actions": latest_corporate_actions_details,
+        "Shareholding Pattern": latest_shareholding_pattern_details,
+    }

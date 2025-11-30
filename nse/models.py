@@ -342,6 +342,7 @@ class CorporateFinancialResultsData(FlexibleBaseModel):
     expenditure: str | float | None
     reProLossBefTax: str | float | None
     proLossAftTax: str | float | None
+    reDilEPS: str | float | None
 
 
 class CorporateFinancialResultsInfo(FlexibleBaseModel):

@@ -22,6 +22,13 @@ trend_examples: list[str] = [
     "Give me list of 5 stocks which have gained volume in this week.",
 ]
 
+complex_analytics_examples: list[str] = [
+    "Analyse HFCL Stock's financials and past growth and recommend if it is good to buy this stock.",
+    "Analyse Engineers India stocks current financials and growth and provide a brief report about this stock.",
+    "Analyse 63 Moons stock and recommend if it is good to buy this stock with analysis result.",
+    "Analyse Landmark Property stock's financial results and growth trend and recommend whether it is good buy?",
+]
+
 
 def format_example(exp: str) -> str:
     return f"{exp:^100}"
@@ -31,9 +38,10 @@ def strip_example(exp: str) -> str:
     return exp.strip().strip("ㅤ")
 
 
-def get_examples() -> tuple[str, str, str]:
+def get_examples() -> tuple[str, str, str, str]:
     return (
         format_example(choice(simple_examples)),
         format_example(choice(analytical_examples)),
         format_example(choice(trend_examples)),
+        format_example(choice(complex_analytics_examples)),
     )
