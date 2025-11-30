@@ -140,10 +140,9 @@ with gr.Blocks(
     with gr.Row():
         disclaimer = gr.HTML(
             """
-            <div>
             <center><h3 style="color: #858585;">Disclaimer</h3></center>
             <center style="color: #858585;">This Chatbot uses Free tier LLM model from Gemini which would be rate limited. If you have personal key for OpenAI/OpenRouter/Groq/Claude, please choose at the top.</center>
-            </div>
+            <center style="color: #858585;">This Chatbot is neither affiliated with nor endorsed by NSE (National Stock Exchange). This is standalone project built for educational purpose.</center>
             """
         )
 
