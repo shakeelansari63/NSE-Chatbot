@@ -249,7 +249,7 @@ def get_top_stocks_in_industries_by_industry_keys(
 
 
 @mcp.tool()
-def analyse_stock_corporate_filings_financial_results_corporate_actions(
+def analyse_stock_corporate_filings_financial_results_and_actions(
     symbol: str,
 ) -> dict[str, Any]:
     """Returns a dictionary containing last board meeting detail, latest financial results,
