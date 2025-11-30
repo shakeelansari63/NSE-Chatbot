@@ -1,15 +1,15 @@
 # 🚀 NSE-Chatbot
 Chatbot for NSE related info  
   
-## 📄 License
+## ⚖️ License
 This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
   
-## Contributers
+## 🤝🏻 Contributers
 <a href="https://github.com/shakeelansari63/NSE-Chatbot/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=shakeelansari63/NSE-Chatbot"></img>
 </a>
   
-## Disclaimer
+## 📌 Disclaimer
 This Chatbot is neither affiliated with nor endorsed by NSE (National Stock Exchange). This is standalone project built for educational purpose only.  
   
 ## ⭐ Credits
