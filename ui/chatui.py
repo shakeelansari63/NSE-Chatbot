@@ -3,6 +3,7 @@ import gradio as gr
 from agent.config import get_provider_models, get_provider_url, set_llm_config
 from chat.agent_chat import agent_chat_fn, send_message_to_ui
 
+from .config import socials
 from .examples import get_examples, strip_example
 
 
@@ -43,10 +44,14 @@ with gr.Blocks(
     # Header
     with gr.Row():
         gr.HTML(
-            """
-            <center><h1>🚀 NSE Chatbot 🚀</h1></center>
+            f"""
+            <span style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>🚀 NSE Chatbot 🚀</h1>
+            <a href="{socials["github"]}" target="_blank" title="Star us on GitHub"><i class="fa-brands fa-github fa-2xl"></i></a>
+            </span>
             """
         )
+
     # Select LLM Provider
     with gr.Sidebar(
         position="right",
@@ -112,7 +117,7 @@ with gr.Blocks(
     with gr.Row():
         gr.HTML(
             """
-            <center><h3>💡 Try some examples</h3></center>
+            <center><h2>💡 Try some examples</h2></center>
             """
         )
     # Examples
@@ -133,8 +138,13 @@ with gr.Blocks(
 
     # Bottom Disclaimer
     with gr.Row():
-        disclaimer = gr.Markdown(
-            "**Disclaimer:** This Chatbot uses Free tier LLM model from GROQ which would be rate limited. If you have personal key for OpenAI/OpenRouter/Groq/Claude, please choose at the top."
+        disclaimer = gr.HTML(
+            """
+            <div>
+            <center><h3 style="color: #858585;">Disclaimer</h3></center>
+            <center style="color: #858585;">This Chatbot uses Free tier LLM model from Gemini which would be rate limited. If you have personal key for OpenAI/OpenRouter/Groq/Claude, please choose at the top.</center>
+            </div>
+            """
         )
 
     # Event Handlers

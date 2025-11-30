@@ -11,7 +11,15 @@ app_theme = Ocean(
 )
 
 app_css = """
+/* Include Font Awesome CSS */
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css");
+
 /* Custom CSS for App */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
 footer {display:none !important};
 
 .example-button {

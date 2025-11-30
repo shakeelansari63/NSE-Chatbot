@@ -3,8 +3,6 @@ from typing import TypedDict
 
 from server_config import get_server_config
 
-from .model import Socials
-
 
 @dataclass
 class LLMConfig:
@@ -87,8 +85,4 @@ provider_llm_map: dict[str, ProviderConfig] = {
             "claude-3-5-haiku-latest",
         ],
     },
-}
-
-socials: Socials = {
-    "github": "https://github.com/shakeelansari63/NSE-Chatbot",
 }
