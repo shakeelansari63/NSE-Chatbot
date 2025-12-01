@@ -28,7 +28,7 @@ def task_executor(symbol: str):
     )
 
 
-async def refresh_market_metadata():
+def refresh_market_metadata():
     market_data = get_all_market_pre_open()
 
     # Skip if no market data found

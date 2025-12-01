@@ -2,7 +2,7 @@ from datetime import datetime
 
 import gradio as gr
 import uvicorn
-from fastapi import FastAPI
+from fastapi import BackgroundTasks, FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -41,12 +41,12 @@ async def redirect_to_ui():
 
 # Add Route to Refresh Equity Metadata
 @app.get("/refresh")
-async def refresh_metadata():
-    start_time = datetime.now()
-    await refresh_market_metadata()
-    end_time = datetime.now()
-    elapsed_seconds = (end_time - start_time).total_seconds()
-    return f"Refreshed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} in {elapsed_seconds // 60} minutes {elapsed_seconds % 60} seconds"
+async def refresh_metadata(background_tasks: BackgroundTasks):
+    # Add Background Task
+    background_tasks.add_task(refresh_market_metadata)
+
+    # Return Response
+    return f"Refreshed triggered at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
 
 # Mount Gradio UI on App

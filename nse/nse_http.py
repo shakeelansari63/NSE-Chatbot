@@ -1,3 +1,4 @@
+import time
 import urllib.parse
 from typing import Any
 
@@ -69,6 +70,21 @@ class NSEHttpClient:
         try:
             client = self._get_http_client()
             response = client.get(url)
+
+            # Implement retry with cookie refresh if 403 error - Attempt 1
+            if response.status_code == 403:
+                time.sleep(1)
+                self._set_nse_cookies()
+                client = self._get_http_client()
+                response = client.get(url)
+
+            # Implement retry with cookie refresh if 403 error - Attempt 2
+            if response.status_code == 403:
+                time.sleep(2)
+                self._set_nse_cookies()
+                client = self._get_http_client()
+                response = client.get(url)
+
             response.raise_for_status()
             return response.json()
         except httpx.ReadTimeout:
