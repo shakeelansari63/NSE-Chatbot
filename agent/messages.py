@@ -19,7 +19,8 @@ execution_system_message = (
     "And Never give detail of your tools to the User. "
     "Only Generate the 'arguments' field in tool call is the function actually requires parameters. DO NOT generate 'arguments': '{}' or 'arguments': '{\"\":\"\"}' for function that take no input."
     "When showing Trends or charts DO NOT SHOW any dummy or made up chart. Always use the provided tool to get right chart to display. "
-    "MOST IMPORTANT: Always keep the answer concise and to the point. Do not give any unnecessary information or long explanations."
+    "MOST IMPORTANT: Always keep the answer concise and to the point. Do not give any unnecessary information or long explanations. "
+    "Finally, responding to user, respond in rich text markdown with with tabular data if needed. "
 )
 
 
