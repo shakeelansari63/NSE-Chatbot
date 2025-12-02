@@ -4,7 +4,7 @@ simple_examples: list[str] = [
     "What is current price of Infosys?",
     "What was last closing price of Tata Motors?",
     "What is current price of VA Tech Wabag?",
-    "What if current price of HCL Tech?",
+    "What is current price of HCL Tech?",
 ]
 
 analytical_examples: list[str] = [
