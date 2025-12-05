@@ -20,10 +20,6 @@ a {
     text-decoration: none;
 }
 
+/* Hide default Gradio Footer */
 footer {display:none !important};
-
-.example-button {
-    height: 100px !important;
-    padding: 10px 20px !important;
-}
 """

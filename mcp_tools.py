@@ -27,13 +27,6 @@ from nse.models import (
 mcp = FastMCP()
 
 
-# MCP Tool to Provide Current Date Time
-@mcp.tool()
-async def get_current_date_time() -> str:
-    """Provides the current date and time in the format DD-MM-YYYY HH:MM:SS"""
-    return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-
-
 # Register MCP
 @mcp.tool()
 async def check_equity_market_status() -> str:

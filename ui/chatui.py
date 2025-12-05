@@ -3,6 +3,8 @@ import gradio as gr
 from agent.config import get_provider_models, get_provider_url, set_llm_config
 from chat.agent_chat import agent_chat_fn, send_message_to_ui
 
+from .components.docs import docs_page
+from .components.navbar import navbar
 from .config import socials
 from .examples import get_examples, strip_example
 
@@ -41,6 +43,9 @@ def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
 with gr.Blocks(
     title="NSE Chatbot",
 ) as ui:
+    # Navbar
+    navbar()
+
     # Header
     with gr.Row():
         gr.HTML(
@@ -156,3 +161,7 @@ with gr.Blocks(
         send_message_to_ui, inputs=[text_input, chatbot], outputs=[chatbot, text_input]
     )
     text_input.submit(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
+
+# Add more pages In app
+with ui.route("Docs", "/docs"):
+    docs_page()

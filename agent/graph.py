@@ -1,3 +1,4 @@
+from functools import cache
 from typing import Annotated
 
 from langchain.agents import create_agent
@@ -15,7 +16,7 @@ from server_config import get_server_config as sc
 from .config import get_config
 from .local_tools import get_line_chart_for_data
 from .messages import (
-    execution_system_message,
+    get_execution_system_message,
     get_shortlist_message,
 )
 
@@ -90,7 +91,7 @@ async def user_command_execution_node(state: GraphState) -> GraphState:
     execution_agent = create_agent(
         model=_get_llm_model(),
         tools=state.tools,
-        system_prompt=execution_system_message,
+        system_prompt=get_execution_system_message(),
     )
 
     # Execute With Tool Calling Agent
@@ -109,11 +110,13 @@ async def get_agent_react():
     return create_agent(
         model=_get_llm_model(),
         tools=all_tools,
-        system_prompt=execution_system_message,
+        system_prompt=get_execution_system_message(),
     )
 
 
-async def get_agent_flow():
+# Memoize Agent Flow Graph
+@cache
+def get_agent_flow():
     # Define new State Graph
     graph = StateGraph(GraphState)
 
@@ -136,6 +139,6 @@ async def get_agent_flow():
 async def get_agent():
     # Get agent based on config
     if sc().select_agent_type == "flow":
-        return await get_agent_flow()
+        return get_agent_flow()
     else:
         return await get_agent_react()
