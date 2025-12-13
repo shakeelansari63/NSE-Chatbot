@@ -50,7 +50,7 @@ class MarketPreOpenApiResponseMetadata(FlexibleBaseModel):
     yearHigh: float | None
     yearLow: float | None
     iep: float | None
-    chartTodayPath: Any
+    chartTodayPath: Any | None = None
 
 
 class MarketPreOpenApiResponseData(FlexibleBaseModel):
