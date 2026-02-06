@@ -1,7 +1,7 @@
 from enum import StrEnum, auto
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, RootModel
 
 
 class MarketStatus(StrEnum):
@@ -244,20 +244,17 @@ class MarketSymbolMcpResponse(FlexibleBaseModel):
 
 
 class StockHistoryData(FlexibleBaseModel):
-    _id: str
-    CH_SYMBOL: str
-    CH_SERIES: str
-    CH_MARKET_TYPE: str
-    CH_TIMESTAMP: str
-    TIMESTAMP: str
-    CH_TRADE_HIGH_PRICE: float
-    CH_TRADE_LOW_PRICE: float
-    CH_OPENING_PRICE: float
-    CH_CLOSING_PRICE: float
+    chSymbol: str
+    chSeries: str
+    mtimestamp: str
+    chTradeHighPrice: float
+    chTradeLowPrice: float
+    chOpeningPrice: float
+    chClosingPrice: float
 
 
-class StockHistoryDataResponse(FlexibleBaseModel):
-    data: list[StockHistoryData]
+class StockHistoryDataResponse(RootModel[list[StockHistoryData]]):
+    pass
 
 
 class Stock52weekAnalysis(FlexibleBaseModel):

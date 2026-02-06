@@ -126,10 +126,11 @@ def get_stock_history_for_specific_range(
     data = _get_nse_client().get_nse_data(
         conf.NSE_STOCK_HISTORY,
         {
+            "functionName": "getHistoricalTradeData",
             "symbol": symbol,
-            "series": f'["{stock_series}"]',
-            "from": from_date,
-            "to": to_date,
+            "series": stock_series,
+            "fromDate": from_date,
+            "toDate": to_date,
         },
     )
 
@@ -137,7 +138,7 @@ def get_stock_history_for_specific_range(
         return None
 
     stock_history_data = StockHistoryDataResponse.model_validate(data)
-    return stock_history_data.data
+    return stock_history_data.root
 
 
 def get_stock_running_52week_high() -> list[Stock52weekAnalysis] | None:

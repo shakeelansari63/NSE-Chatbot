@@ -122,16 +122,16 @@ def get_stock_history_prices_for_range_not_more_than_1_year(
 
     stock_data = [
         {
-            "date": stock.CH_TIMESTAMP,
-            "close": stock.CH_OPENING_PRICE,
+            "date": stock.mtimestamp,
+            "close": stock.chClosingPrice,
         }
         for stock in data
     ]
 
     return {
         symbol: stock_data,
-        "highest": max(data, key=lambda x: x.CH_TRADE_HIGH_PRICE).CH_TRADE_HIGH_PRICE,
-        "lowest": min(data, key=lambda x: x.CH_TRADE_LOW_PRICE).CH_TRADE_LOW_PRICE,
+        "highest": max(data, key=lambda x: x.chTradeHighPrice).chTradeHighPrice,
+        "lowest": min(data, key=lambda x: x.chTradeLowPrice).chTradeLowPrice,
     }
 
 

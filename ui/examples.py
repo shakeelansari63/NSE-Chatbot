@@ -23,10 +23,10 @@ trend_examples: list[str] = [
 ]
 
 complex_analytics_examples: list[str] = [
-    "Analyse HFCL Stock's financials and past growth and recommend if it is good to buy this stock.",
+    "Analyse HFCL Stock's financials and growth in last 2 months.",
     "Analyse Engineers India stocks current financials and growth and provide a brief report about this stock.",
-    "Analyse 63 Moons stock and recommend if it is good to buy this stock with analysis result.",
-    "Analyse Landmark Property stock's financial results and growth trend and recommend whether it is good buy?",
+    "Analyse 63 Moons stock and provide detail analysis result.",
+    "Analyse Landmark Property stock's financial results and growth trend.",
 ]
 
 

@@ -6,7 +6,7 @@ MARKET_PRE_OPEN_URL = f"{BASE_URL}/api/market-data-pre-open?key=ALL"
 STOCKS_52_HIGH = f"{BASE_URL}/api/live-analysis-data-52weekhighstock"
 STOCKS_52_LOW = f"{BASE_URL}/api/live-analysis-data-52weeklowstock"
 WEEKLY_VOLUME_GAINERS = f"{BASE_URL}/api/live-analysis-volume-gainers"
-NSE_STOCK_HISTORY = f"{BASE_URL}/api/historical/cm/equity"
+NSE_STOCK_HISTORY = f"{BASE_URL}/api/NextApi/apiClient/GetQuoteApi"
 CORPORATE_FILING_INFORMATION = f"{BASE_URL}/api/top-corp-info"
 
 
