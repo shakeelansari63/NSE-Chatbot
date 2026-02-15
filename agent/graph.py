@@ -1,5 +1,5 @@
 from functools import cache
-from typing import Annotated
+from typing import Annotated, TypedDict
 
 from langchain.agents import create_agent
 from langchain.messages import HumanMessage
@@ -9,7 +9,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
-from pydantic import BaseModel, Field, RootModel, SecretStr
+from pydantic import BaseModel, Field, SecretStr
 
 from server_config import get_server_config as sc
 
@@ -31,8 +31,8 @@ class GraphState(BaseModel):
 
 
 # Structured Output for Tool Shortlisting Agent
-class ShortlistOutput(RootModel[list[str]]):
-    pass
+class ShortlistOutput(TypedDict):
+    tools: list[str]
 
 
 async def _get_all_tools():
@@ -73,11 +73,11 @@ async def tools_shortlist_node(state: GraphState) -> GraphState:
         HumanMessage(content=get_shortlist_message(all_tool_names, state.messages))
     ]
 
-    llm = _get_llm_model().with_structured_output(ShortlistOutput, strict=False)
-    output = llm.invoke(user_message)
+    llm = _get_llm_model().with_structured_output(ShortlistOutput, strict=True)
+    output: ShortlistOutput = llm.invoke(user_message)
 
     # Extract the shortlisted tools from the output
-    shortlisted_tools = [tool for tool in all_tools if tool.name in output.root]
+    shortlisted_tools = [tool for tool in all_tools if tool.name in output["tools"]]
 
     # Update and return State
     state.tools = shortlisted_tools
