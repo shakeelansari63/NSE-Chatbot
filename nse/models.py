@@ -102,11 +102,6 @@ class StockInfo(FlexibleBaseModel):
     identifier: str
 
 
-class Surveillance(FlexibleBaseModel):
-    surv: Any
-    desc: Any
-
-
 class IntraDayHighLow(FlexibleBaseModel):
     min: float
     max: float
@@ -230,19 +225,6 @@ class StockDetailResponse(FlexibleBaseModel):
     tradeInfo: OrderBookTradeInfo
 
 
-class StockDetailMcpResponse(FlexibleBaseModel):
-    info: StockInfo
-    currentMarketType: str
-    priceInfo: PriceInfo
-    industryInfo: IndustryInfo
-    preOpenMarket: PreOpenMarket
-
-
-class MarketSymbolMcpResponse(FlexibleBaseModel):
-    symbol: str
-    identifier: str
-
-
 class StockHistoryData(FlexibleBaseModel):
     chSymbol: str
     chSeries: str
@@ -300,18 +282,6 @@ class StockWeeklyVolumeGainerResponse(FlexibleBaseModel):
     timestamp: str | None = None
 
 
-class NSECompaniesList(FlexibleBaseModel):
-    symbol: str
-    companyName: str
-
-
-class NSECompanyListWithMatchScore(FlexibleBaseModel):
-    symbol: str
-    companyName: str
-    nameScore: int
-    symbolScore: int
-
-
 class CorporateBoardMeetingData(FlexibleBaseModel):
     meetingdate: str
     purpose: str
@@ -366,3 +336,143 @@ class CorporateFilingInfoResponse(FlexibleBaseModel):
     financial_results: CorporateFinancialResultsInfo
     latest_announcements: CorporateLatestAnnouncementsInfo
     shareholdings_patterns: CorporateShareHoldingPatternInfo
+
+
+# ─── New NSE Quote API models (GetQuoteApi / getSymbolData) ────────────────
+
+
+class EquityOrderBook(FlexibleBaseModel):
+    buyPrice1: float = 0
+    buyQuantity1: int = 0
+    buyPrice2: float = 0
+    buyQuantity2: int = 0
+    buyPrice3: float = 0
+    buyQuantity3: int = 0
+    buyPrice4: float = 0
+    buyQuantity4: int = 0
+    buyPrice5: float = 0
+    buyQuantity5: int = 0
+    sellPrice1: float = 0
+    sellQuantity1: int = 0
+    sellPrice2: float = 0
+    sellQuantity2: int = 0
+    sellPrice3: float = 0
+    sellQuantity3: int = 0
+    sellPrice4: float = 0
+    sellQuantity4: int = 0
+    sellPrice5: float = 0
+    sellQuantity5: int = 0
+    lastPrice: float
+    totalBuyQuantity: int
+    totalSellQuantity: int
+    perBuyQty: int
+    perSellQty: int
+
+
+class EquityMetaData(FlexibleBaseModel):
+    identifier: str
+    companyName: str
+    isinCode: str
+    symbol: str
+    series: str
+    marketType: str
+    open: float
+    dayHigh: float
+    dayLow: float
+    previousClose: float
+    averagePrice: float
+    change: float
+    basePrice: float
+    closePrice: float
+    indicativeClose: float
+    ic_change: float
+    ic_pchange: float
+    spoChange: float
+    spoPchange: float
+    symbolStatus: str
+    adjPrice: float
+    iep: float
+    ieq: float
+    pChange: float
+
+
+class EquityTradeInfo(FlexibleBaseModel):
+    totalTradedVolume: int
+    totalTradedValue: float
+    series: str
+    lastPrice: float
+    issuedSize: int
+    basePrice: float
+    ffmc: float
+    faceValue: int
+    impactCost: float
+    deliveryToTradedQuantity: float
+    applicableMargin: float
+    marketLot: Any = None
+    quantitytraded: int
+    deliveryquantity: int
+    totalMarketCap: float
+    secwisedelposdate: str
+
+
+class EquityPriceInfo(FlexibleBaseModel):
+    yearHightDt: str
+    yearLowDt: str
+    yearHigh: float
+    yearLow: float
+    cmDailyVolatility: str
+    cmAnnualVolatility: str
+    tickSize: float
+    inav: float
+    isINav: str
+    priceBand: str
+    ppriceBand: str
+
+
+class EquitySecInfo(FlexibleBaseModel):
+    secStatus: str
+    listingDate: str
+    pdSectorInd: str
+    pdSectorPe: str | None = None
+    pdSymbolPe: str | None = None
+    isSuspended: str
+    basicIndustry: str
+    index: str
+    deliveryQuantity: str
+    deliveryTotradedQuantity: str
+    securityvar: str
+    indexvar: str
+    extremelossMargin: str
+    varMargin: str
+    adhocMargin: str
+    applicableMargin: str
+    bondType: Any = None
+    issueDesc: str
+    issueDate: Any = None
+    maturityDate: Any = None
+    couponRate: Any = None
+    nxtIpDate: Any = None
+    creditRating: Any = None
+    macro: str
+    sector: str
+    industryInfo: str
+    indexList: list[str]
+    boardStatus: str
+    tradingSegment: str
+    sessionNo: Any = None
+    classShare: str
+    nameOfComplianceOfficer: Any = None
+    sddcompliance: Any = None
+
+
+class EquityResponseItem(FlexibleBaseModel):
+    orderBook: EquityOrderBook
+    metaData: EquityMetaData
+    tradeInfo: EquityTradeInfo
+    priceInfo: EquityPriceInfo
+    secInfo: EquitySecInfo
+    lastUpdateTime: str
+
+
+class StockQuoteResponse(FlexibleBaseModel):
+    equityResponse: list[EquityResponseItem]

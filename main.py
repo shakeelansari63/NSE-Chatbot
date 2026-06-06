@@ -1,8 +1,15 @@
+import warnings
 from datetime import datetime
 
 import gradio as gr
+
+# gradio still uses deprecated HTTP_422_UNPROCESSABLE_ENTITY (starlette)
+warnings.filterwarnings("ignore", message=".*HTTP_422_UNPROCESSABLE_ENTITY.*")
+# uvicorn still uses deprecated websockets.legacy module
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="websockets")
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -17,6 +24,15 @@ mcp_http_app = mcp_app.http_app(path="/")
 
 # Create Fastapi app with MCP's Lifespan
 app = FastAPI(title="NSE Chatbot App", lifespan=mcp_http_app.lifespan)
+
+# CORS: Allow requests from any origin for the public-facing API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Return Favicon
@@ -56,6 +72,7 @@ app = gr.mount_gradio_app(
     path=sc().ui_path,
     theme=app_theme,
     css=app_css,
+    head="<style>#nse-chatbot{border:0 none!important;border-width:0!important;border-style:none!important}</style>",
 )
 
 # Mount MCP ON app

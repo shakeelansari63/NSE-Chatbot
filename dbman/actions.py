@@ -16,10 +16,10 @@ def task_executor(symbol: str):
     save_nse_metadata(
         NSEMetadata(
             symbol=symbol,
-            name=stock_detail.info.companyName,
-            sector=stock_detail.industryInfo.sector,
-            industry=stock_detail.industryInfo.industry,
-            industry_info=stock_detail.industryInfo.basicIndustry,
+            name=stock_detail.metaData.companyName,
+            sector=stock_detail.secInfo.sector,
+            industry=stock_detail.secInfo.industryInfo,
+            industry_info=stock_detail.secInfo.basicIndustry,
             total_traded_volume_in_lakhs=stock_detail.tradeInfo.totalTradedVolume,
             total_traded_value_in_crore=stock_detail.tradeInfo.totalTradedValue,
             total_market_cap_in_crore=stock_detail.tradeInfo.totalMarketCap,

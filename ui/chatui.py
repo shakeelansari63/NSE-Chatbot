@@ -1,11 +1,13 @@
 import gradio as gr
 
-from agent.config import get_provider_models, get_provider_url, set_llm_config
+from agent.config import get_provider_models, get_provider_url
 from chat.agent_chat import agent_chat_fn, send_message_to_ui
+from server_config import get_server_config as sc
 
 from .components.docs import docs_page
 from .components.navbar import navbar
 from .config import socials
+
 from .examples import get_examples, strip_example
 
 
@@ -39,10 +41,23 @@ def llm_form_by_provider(provider: str) -> tuple[gr.Textbox, gr.Dropdown]:
     return url_component, model_component
 
 
-# ui = gr.ChatInterface(chat_app, type="messages")
+def _update_llm_state(
+    api_url: str, api_key: str, model: str, _current: dict
+) -> dict:
+    """Store per-session LLM config in Gradio state instead of global variables."""
+    return {"url": api_url, "key": api_key, "model": model}
+
+
+# Per-session LLM config — initialised from env defaults
+# so each browser tab starts with a fresh, isolated copy.
+_DEFAULT_LLM_CONFIG = {"url": sc().llm_api_url, "key": sc().llm_api_key, "model": sc().llm_model}
+
 with gr.Blocks(
     title="NSE Chatbot",
 ) as ui:
+    # Per-session state for LLM config
+    llm_state = gr.State(_DEFAULT_LLM_CONFIG)
+
     # Navbar
     navbar()
 
@@ -66,7 +81,7 @@ with gr.Blocks(
             with gr.Row():
                 gr.Markdown("### Select your own LLM Provider")
                 llm_provider = gr.Dropdown(
-                    choices=["OpenAI", "Groq", "OpenRouter", "Claude", "Other"],
+                    choices=["OpenAI", "Groq", "OpenRouter", "Gemini", "Claude", "Other"],
                     label="LLM Provider",
                 )
                 llm_api_url = gr.Textbox(label="API URL", visible=False)
@@ -91,11 +106,11 @@ with gr.Blocks(
                 outputs=[llm_api_url, llm_model],
             )
 
-            # Save LLM details
+            # Save LLM details to per-session state (not global variables)
             save_llm_detail.click(
-                set_llm_config,
-                inputs=[llm_api_url, llm_api_key, llm_model],
-                outputs=[],
+                _update_llm_state,
+                inputs=[llm_api_url, llm_api_key, llm_model, llm_state],
+                outputs=[llm_state],
             )
 
     # Chat Bot
@@ -103,8 +118,9 @@ with gr.Blocks(
         with gr.Group():
             chatbot = gr.Chatbot(
                 show_label=False,
-                resizable=True,
-                height=400,
+                max_height=400,
+                container=False,
+                elem_id="nse-chatbot",
             )
 
             with gr.Group():
@@ -143,7 +159,7 @@ with gr.Blocks(
 
     # Bottom Disclaimer
     with gr.Row():
-        disclaimer = gr.HTML(
+        gr.HTML(
             """
             <center><h3 style="color: #858585;">Disclaimer</h3></center>
             <center style="color: #858585;">This Chatbot uses Free tier LLM model from Gemini which would be rate limited. If you have personal key for OpenAI/OpenRouter/Groq/Claude, please choose at the top.</center>
@@ -151,16 +167,20 @@ with gr.Blocks(
             """
         )
 
-    # Event Handlers
+    # Event Handlers — per-session llm_state is passed to the chat function
     send_button.click(
         send_message_to_ui, inputs=[text_input, chatbot], outputs=[chatbot, text_input]
     )
-    send_button.click(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
+    send_button.click(
+        agent_chat_fn, inputs=[text_input, chatbot, llm_state], outputs=chatbot
+    )
 
     text_input.submit(
         send_message_to_ui, inputs=[text_input, chatbot], outputs=[chatbot, text_input]
     )
-    text_input.submit(agent_chat_fn, inputs=[text_input, chatbot], outputs=chatbot)
+    text_input.submit(
+        agent_chat_fn, inputs=[text_input, chatbot, llm_state], outputs=chatbot
+    )
 
 # Add more pages In app
 with ui.route("Docs", "/docs"):

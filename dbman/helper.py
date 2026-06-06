@@ -1,12 +1,22 @@
 from typing import Any
 
+from sqlalchemy import URL
 from sqlmodel import Session, create_engine, func, select
 
 from server_config import get_server_config as sc
 
 from .nse_metadata import NSEMetadata
 
-engine = create_engine(sc().pg_url, connect_args={"connect_timeout": 30})
+_engine_url = URL.create(
+    "postgresql+psycopg",
+    username=sc().pg_user,
+    password=sc().pg_pass,
+    host=sc().pg_host,
+    port=sc().pg_port,
+    database=sc().pg_db,
+    query={"sslmode": "require"},
+)
+engine = create_engine(_engine_url, connect_args={"connect_timeout": 30})
 
 
 # Add or update NSE Metadata

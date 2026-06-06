@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Any
 
@@ -18,13 +19,35 @@ from nse.helper import (
     get_weekly_volume_gainers,
 )
 from nse.models import (
+    EquityResponseItem,
     MarketStatus,
     Stock52weekAnalysis,
-    StockDetailResponse,
     StockWeeklyVolumeGainers,
 )
 
 mcp = FastMCP()
+
+_SYMBOL_RE = re.compile(r"^[A-Z0-9.-]{1,20}$")
+_DATE_RE = re.compile(r"^\d{2}-\d{2}-\d{4}$")
+
+
+def _validate_symbol(symbol: str) -> str:
+    s = symbol.strip().upper()
+    if not _SYMBOL_RE.match(s):
+        raise ValueError(
+            f"Invalid symbol '{symbol}'. Must be 1-20 alphanumeric characters (uppercase), "
+            "dots, or hyphens."
+        )
+    return s
+
+
+def _validate_date(date_str: str, label: str = "date") -> str:
+    d = date_str.strip()
+    if not _DATE_RE.match(d):
+        raise ValueError(
+            f"Invalid {label} '{date_str}'. Must be in DD-MM-YYYY format."
+        )
+    return d
 
 
 # Register MCP
@@ -55,32 +78,32 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
             "PreviousClosePrice": <Closing Price on previous market day>,
         }
     """
-    stock_detail: StockDetailResponse | None = get_stock_details(symbol)
+    symbol = _validate_symbol(symbol)
+    stock_detail: EquityResponseItem | None = get_stock_details(symbol)
     market_state = get_capital_market_state()
 
     if stock_detail is None or market_state is None:
         return {
             "Symbol": symbol,
-            "CurrentPrice": stock_detail.priceInfo.lastPrice
+            "CurrentPrice": stock_detail.orderBook.lastPrice
             if stock_detail
             else "UNKNOWN",
-            "PreviousClosePrice": stock_detail.priceInfo.previousClose
+            "PreviousClosePrice": stock_detail.metaData.previousClose
             if stock_detail
             else "UNKNOWN",
         }
 
-    # Check for market status
     if market_state == MarketStatus.CLOSED or market_state == MarketStatus.CLOSE:
         return {
             "Symbol": symbol,
-            "CurrentPrice": stock_detail.priceInfo.close,
-            "PreviousClosePrice": stock_detail.priceInfo.previousClose,
+            "CurrentPrice": stock_detail.metaData.closePrice,
+            "PreviousClosePrice": stock_detail.metaData.previousClose,
         }
 
     return {
         "Symbol": symbol,
-        "CurrentPrice": stock_detail.priceInfo.lastPrice,
-        "PreviousClosePrice": stock_detail.priceInfo.previousClose,
+        "CurrentPrice": stock_detail.orderBook.lastPrice,
+        "PreviousClosePrice": stock_detail.metaData.previousClose,
     }
 
 
@@ -115,6 +138,9 @@ def get_stock_history_prices_for_range_not_more_than_1_year(
             {"date": "2023-01-02","open": 105.0,"close": 110.0,"high": 115.0,"low": 100.0}
         ], "highest": 120.9, "lowest": 92.0}
     """
+    symbol = _validate_symbol(symbol)
+    from_date = _validate_date(from_date, "from_date")
+    to_date = _validate_date(to_date, "to_date")
     data = get_stock_history_for_specific_range(symbol, from_date, to_date)
 
     if data is None:
@@ -199,6 +225,9 @@ def search_nse_stocks_by_name_or_symbol(
             {"INFY" : "Infosys Limited"}
         ]
     """
+    search_key = search_key.strip()[:100]
+    if not search_key:
+        return "Search key cannot be empty."
     companies = search_nse_company_by_name_or_symbol_indb(search_key)
 
     return [{company.symbol: company.name} for company in companies]
@@ -212,6 +241,9 @@ def search_nse_sector_or_industry_keys(search_key: str) -> list[str]:
     Example Input: "IT"
     Example Output: ["IT - Hardware", "Information Technology"]
     """
+    search_key = search_key.strip()[:100]
+    if not search_key:
+        return []
     return search_sector_or_industry_indb(search_key)
 
 
@@ -259,6 +291,7 @@ def analyse_stock_corporate_filings_financial_results_and_actions(
         "Latest Shareholding Pattern": <Current Shareholding Pattern like percent share held by public / employees>,
     }
     """
+    symbol = _validate_symbol(symbol)
     detail = get_stock_corporate_filing_info(symbol)
 
     if detail is None:

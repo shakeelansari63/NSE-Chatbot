@@ -32,18 +32,6 @@ class ServerConfig(BaseSettings):
     llm_api_url: str = ""
     llm_model: str = ""
 
-    # Agent Type
-    # `react` - Simple ReAct Agent
-    # or
-    # `flow` - MultiAgent Flow
-    select_agent_type: str = "flow"
-
-    # Generate DB URL from Config
-    @computed_field
-    @property
-    def pg_url(self) -> str:
-        return f"postgresql://{self.pg_user}:{self.pg_pass}@{self.pg_host}:{self.pg_port}/{self.pg_db}"
-
     # Generate MCP URL
     @computed_field
     @property

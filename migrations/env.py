@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import URL, engine_from_config, pool
 
 from dbman import DbMetadata
 from server_config import get_server_config as sc
@@ -10,8 +10,17 @@ from server_config import get_server_config as sc
 # access to the values within the .ini file in use.
 config = context.config
 
-# Set Sqlalchemy URL
-config.set_main_option("sqlalchemy.url", sc().pg_url)
+# Set Sqlalchemy URL using URL.create to avoid password-in-string exposure
+_alembic_url = URL.create(
+    "postgresql+psycopg",
+    username=sc().pg_user,
+    password=sc().pg_pass,
+    host=sc().pg_host,
+    port=sc().pg_port,
+    database=sc().pg_db,
+    query={"sslmode": "require"},
+)
+config.set_main_option("sqlalchemy.url", str(_alembic_url))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

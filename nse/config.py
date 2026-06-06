@@ -1,7 +1,7 @@
 BASE_URL = "https://www.nseindia.com"
 EQUITY_URL = f"{BASE_URL}/get-quotes/equity?symbol="
 MARKET_STATUS_URL = f"{BASE_URL}/api/marketStatus"
-STOCK_QUOTE_URL = f"{BASE_URL}/api/quote-equity"
+STOCK_QUOTE_URL = f"{BASE_URL}/api/NextApi/apiClient/GetQuoteApi"
 MARKET_PRE_OPEN_URL = f"{BASE_URL}/api/market-data-pre-open?key=ALL"
 STOCKS_52_HIGH = f"{BASE_URL}/api/live-analysis-data-52weekhighstock"
 STOCKS_52_LOW = f"{BASE_URL}/api/live-analysis-data-52weeklowstock"

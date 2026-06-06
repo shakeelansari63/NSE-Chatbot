@@ -1,4 +1,6 @@
+import logging
 import os
+import time
 from tempfile import NamedTemporaryFile
 
 import matplotlib.pyplot as plt
@@ -6,6 +8,24 @@ import seaborn as sns
 from langchain.tools import tool
 
 from server_config import get_server_config as sc
+
+logger = logging.getLogger(__name__)
+
+_MAX_TEMP_AGE_SECS = 3600  # 1 hour
+
+
+def _cleanup_expired_temp_files(assets_dir: str) -> None:
+    now = time.time()
+    try:
+        for fname in os.listdir(assets_dir):
+            fpath = os.path.join(assets_dir, fname)
+            if fname.endswith(".png") and os.path.isfile(fpath):
+                age = now - os.path.getmtime(fpath)
+                if age > _MAX_TEMP_AGE_SECS:
+                    os.remove(fpath)
+                    logger.debug("Cleaned up expired temp file: %s", fpath)
+    except OSError:
+        logger.exception("Error cleaning up temp assets")
 
 
 @tool
@@ -17,6 +37,8 @@ def get_line_chart_for_data(
     The First element is X Axis value and the second element is Y Axis value.
     This function returns an markdown image tag with chart image url which can be embedded as is it in the response without any processing.
     """
+    _cleanup_expired_temp_files(sc().temp_assets_url)
+
     plt.figure(figsize=(12, 6))
     fig = sns.lineplot(x=[x for x, _ in data], y=[y for _, y in data])
     fig.set_title(title)

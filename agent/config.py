@@ -25,16 +25,6 @@ def get_config() -> LLMConfig:
     return _config
 
 
-# Set LLM Config
-def set_llm_config(url: str, api_key: str, model: str):
-    global _config
-
-    # Set URL by provider
-    _config.llm_api_url = url
-    _config.llm_api_key = api_key
-    _config.llm_model = model
-
-
 def get_provider_url(provider: str) -> str:
     provider_info = provider_llm_map.get(provider.lower(), None)
     if provider_info:
@@ -55,9 +45,11 @@ provider_llm_map: dict[str, ProviderConfig] = {
     "openai": {
         "url": "https://api.openai.com/v1",
         "models": [
-            "gpt-5",
-            "gpt-5-mini",
-            "gpt-5-nano",
+            "gpt-5.5",
+            "gpt-5.5-pro",
+            "gpt-5.5-instant",
+            "gpt-5.4-mini",
+            "gpt-5.4-nano",
             "gpt-4.1",
             "gpt-4.1-mini",
             "gpt-4.1-nano",
@@ -67,22 +59,39 @@ provider_llm_map: dict[str, ProviderConfig] = {
     },
     "groq": {
         "url": "https://api.groq.com/openai/v1",
-        "models": [],
+        "models": [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "llama-4-scout-17b-16e-instruct",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+            "qwen3-32b",
+            "deepseek-r1-distill-llama-70b",
+            "moonshotai/kimi-k2-instruct",
+        ],
     },
     "openrouter": {
         "url": "https://openrouter.ai/api/v1",
         "models": [],
     },
+    "gemini": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/openai",
+        "models": [
+            "gemini-3.5-flash",
+            "gemini-3.5-pro",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+        ],
+    },
     "claude": {
         "url": "https://api.anthropic.com/v1",
         "models": [
-            "claude-sonnet-4-5",
+            "claude-opus-4-8",
+            "claude-opus-4-7",
+            "claude-sonnet-4-6",
+            "claude-sonnet-5-fennec",
             "claude-haiku-4-5",
-            "claude-opus-4-1",
-            "claude-sonnet-4-0",
-            "claude-3-7-sonnet-latest",
-            "claude-opus-4-0",
-            "claude-3-5-haiku-latest",
         ],
     },
 }

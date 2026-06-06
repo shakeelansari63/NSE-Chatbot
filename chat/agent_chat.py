@@ -1,5 +1,3 @@
-from typing import Any
-
 from agent.graph import get_agent
 
 from .model import GradioMessage, GradioMessageContent
@@ -12,8 +10,10 @@ from .utils import (
 async def agent_chat_fn(
     message: str,
     history: list[GradioMessage],
+    llm_config: dict | None = None,
 ) -> list[GradioMessage]:
-    agent = await get_agent()
+    llm_config = llm_config or {}
+    agent = get_agent()
 
     # Add User question to history
     history.append(
@@ -24,7 +24,7 @@ async def agent_chat_fn(
     )
 
     # Generate State Object
-    state = generate_agent_state_from_messages(history)
+    state = generate_agent_state_from_messages(history, llm_config)
 
     resp = await agent.ainvoke(state)
     return langchain_messages_to_gradio(resp["messages"])
