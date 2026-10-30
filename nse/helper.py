@@ -1,4 +1,7 @@
+import logging
 from functools import cache
+
+from pydantic import ValidationError
 
 from . import config as conf
 from .models import (
@@ -14,11 +17,12 @@ from .models import (
     Stock52WeekLowResponse,
     StockHistoryData,
     StockHistoryDataResponse,
-    StockQuoteResponse,
     StockWeeklyVolumeGainerResponse,
     StockWeeklyVolumeGainers,
 )
 from .nse_http import NSEHttpClient
+
+logger = logging.getLogger(__name__)
 
 
 @cache
@@ -29,10 +33,19 @@ def _get_nse_client() -> NSEHttpClient:
 
 def get_all_markets_state() -> list[MarketStatusMcp] | None:
     data = _get_nse_client().get_nse_data(conf.MARKET_STATUS_URL)
-    if data is None:
+    if data is None or not isinstance(data, dict):
         return None
 
-    market_state = MarketStatusApiResp.model_validate(data)
+    # NSE mixes index snapshots (e.g. "NIFTY50 USD") into `marketState` that carry
+    # index/last/percentChange instead of market fields, so only validate entries
+    # that actually describe a market.
+    market_entries = [
+        entry
+        for entry in data.get("marketState", [])
+        if isinstance(entry, dict) and entry.get("market") and entry.get("marketStatus")
+    ]
+
+    market_state = MarketStatusApiResp.model_validate({"marketState": market_entries})
 
     resp_market_state = [
         MarketStatusMcp(
@@ -82,14 +95,31 @@ def get_stock_details(
         {"functionName": "getSymbolData", "marketType": "N", "series": "EQ", "symbol": symbol},
     )
 
-    if data is None:
+    if not isinstance(data, dict):
         return None
 
-    quote = StockQuoteResponse.model_validate(data)
-    if not quote.equityResponse:
+    entries = data.get("equityResponse")
+    if not isinstance(entries, list):
         return None
 
-    return quote.equityResponse[0]
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+
+        # NSE returns a placeholder entry with all-null fields for symbols it has
+        # no quote for (e.g. not yet traded today), so skip those instead of
+        # failing validation for the whole response.
+        if not entry.get("metaData") or not entry.get("orderBook"):
+            continue
+
+        try:
+            return EquityResponseItem.model_validate(entry)
+        except ValidationError:
+            logger.warning(
+                "Skipping invalid quote payload for symbol %s", symbol, exc_info=True
+            )
+
+    return None
 
 
 def get_stock_history_for_specific_range(
@@ -100,10 +130,9 @@ def get_stock_history_for_specific_range(
     # Get Stock Detail
     detail = get_stock_details(symbol)
 
-    if detail is None:
-        return None
-
-    stock_series = detail.metaData.series
+    # The quote can be unavailable (e.g. symbol not traded today) even though
+    # history exists, so fall back to the default equity series in that case.
+    stock_series = detail.metaData.series if detail is not None else "EQ"
 
     # Get Stock History Data
     data = _get_nse_client().get_nse_data(

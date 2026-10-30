@@ -44,7 +44,7 @@ AI-powered conversational agent for the National Stock Exchange of India (NSE). 
 │   └── theme.py            # Ocean theme + custom CSS
 ├── .env.template           # Environment variable template (see template for Supabase setup)
 ├── main.py                 # FastAPI app entry point
-├── Makefile                # Convenience targets (make run, make setup)
+├── Taskfile.yaml           # Convenience tasks (task run, task setup)
 ├── mcp_tools.py            # MCP tool definitions
 ├── pyproject.toml          # Project metadata + dependencies
 └── server_config.py        # Pydantic settings (env-based config)
@@ -84,7 +84,7 @@ alembic upgrade head
 #    Start the server, then visit http://localhost:8000/refresh
 
 # 7. Start the server
-make run
+task run
 # or: uv run main.py
 # or: python main.py
 ```

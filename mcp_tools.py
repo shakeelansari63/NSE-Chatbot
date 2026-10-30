@@ -20,7 +20,6 @@ from nse.helper import (
 )
 from nse.models import (
     EquityResponseItem,
-    MarketStatus,
     Stock52weekAnalysis,
     StockWeeklyVolumeGainers,
 )
@@ -93,7 +92,7 @@ def get_current_stock_price(symbol: str) -> dict[str, Any]:
             else "UNKNOWN",
         }
 
-    if market_state == MarketStatus.CLOSED or market_state == MarketStatus.CLOSE:
+    if market_state.is_trading_closed:
         return {
             "Symbol": symbol,
             "CurrentPrice": stock_detail.metaData.closePrice,

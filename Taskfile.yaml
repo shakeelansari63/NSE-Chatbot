@@ -1,0 +1,14 @@
+version: '3'
+
+default: run
+
+tasks:
+  run:
+    desc: Start the NSE Chatbot server
+    cmds:
+      - uv run main.py
+
+  setup:
+    desc: Install project dependencies
+    cmds:
+      - uv sync

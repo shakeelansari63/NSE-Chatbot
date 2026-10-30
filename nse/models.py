@@ -1,13 +1,55 @@
-from enum import StrEnum, auto
+import logging
+import re
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, RootModel
+
+logger = logging.getLogger(__name__)
 
 
 class MarketStatus(StrEnum):
     OPEN = "Open"
     CLOSED = "Closed"
     CLOSE = "Close"
+    PRE_OPEN = "Pre-Open"
+    UNKNOWN = "Unknown"
+
+    @classmethod
+    def _missing_(cls, value: object) -> "MarketStatus":
+        """Map unexpected NSE status strings onto a known member.
+
+        NSE occasionally reports variants we don't model exactly (e.g. casing,
+        separators, "Pre-Open Market"). Rather than failing validation for the
+        whole payload, normalise what we can and fall back to UNKNOWN.
+        """
+        if isinstance(value, str):
+            normalized = re.sub(r"[^a-z]", "", value.lower())
+            aliases = {
+                "open": cls.OPEN,
+                "marketisopen": cls.OPEN,
+                "closed": cls.CLOSED,
+                "marketisclosed": cls.CLOSED,
+                "close": cls.CLOSE,
+                "normalmarkethasclosed": cls.CLOSE,
+                "preopen": cls.PRE_OPEN,
+                "preopenmarket": cls.PRE_OPEN,
+                "preopensession": cls.PRE_OPEN,
+            }
+            if normalized in aliases:
+                return aliases[normalized]
+
+        logger.warning("Unrecognised NSE market status %r, falling back to UNKNOWN", value)
+        return cls.UNKNOWN
+
+    @property
+    def is_trading_closed(self) -> bool:
+        """True only when NSE reports final traded prices.
+
+        UNKNOWN is deliberately not treated as closed: the NSE quote still carries
+        the latest available price, so callers should prefer it over closePrice.
+        """
+        return self in (MarketStatus.CLOSED, MarketStatus.CLOSE)
 
 
 class FlexibleBaseModel(BaseModel):
