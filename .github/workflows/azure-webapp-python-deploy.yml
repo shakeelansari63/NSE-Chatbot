@@ -30,7 +30,7 @@ jobs:
 
       - name: Generate Requirements.txt
         run: |
-          uv pip compile pyproject.toml -o requirements.txt --python-version ${PYTHON_VERSION}
+          uv pip compile pyproject.toml --resolution=lock -o requirements.txt --python-version ${PYTHON_VERSION}
 
       - name: Set up Python version
         uses: actions/setup-python@v5
