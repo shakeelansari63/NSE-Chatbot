@@ -49,6 +49,16 @@ def _validate_date(date_str: str, label: str = "date") -> str:
     return d
 
 
+def _format_history_date(value: str) -> str:
+    """Normalize NSE date strings (e.g. '30-Oct-2026') to YYYY-MM-DD."""
+    for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(value, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return value
+
+
 # Register MCP
 @mcp.tool()
 async def check_equity_market_status() -> str:
@@ -140,14 +150,33 @@ def get_stock_history_prices_for_range_not_more_than_1_year(
     symbol = _validate_symbol(symbol)
     from_date = _validate_date(from_date, "from_date")
     to_date = _validate_date(to_date, "to_date")
+
+    try:
+        from_dt = datetime.strptime(from_date, "%d-%m-%Y")
+        to_dt = datetime.strptime(to_date, "%d-%m-%Y")
+    except ValueError:
+        return "Invalid date. Please provide real calendar dates in DD-MM-YYYY format."
+
+    if from_dt > to_dt:
+        return "Invalid date range: from_date must be on or before to_date."
+
+    if (to_dt - from_dt).days > 366:
+        return "Invalid date range: the range must not be more than 1 year."
+
     data = get_stock_history_for_specific_range(symbol, from_date, to_date)
 
     if data is None:
         return "Unable to fetch historical data from NSE"
 
+    if not data:
+        return (
+            f"No historical data available for '{symbol}' between {from_date} and {to_date}. "
+            "Please verify the symbol and make sure the date range includes trading days."
+        )
+
     stock_data = [
         {
-            "date": stock.mtimestamp,
+            "date": _format_history_date(stock.mtimestamp),
             "close": stock.chClosingPrice,
         }
         for stock in data

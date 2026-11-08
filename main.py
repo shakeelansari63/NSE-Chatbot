@@ -1,12 +1,17 @@
+import logging
 import warnings
 from datetime import datetime
 
 import gradio as gr
+from anyio import ClosedResourceError
 
 # gradio still uses deprecated HTTP_422_UNPROCESSABLE_ENTITY (starlette)
 warnings.filterwarnings("ignore", message=".*HTTP_422_UNPROCESSABLE_ENTITY.*")
 # uvicorn still uses deprecated websockets.legacy module
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="websockets")
+# gradio's queue uses pandas APIs deprecated in pandas 3 (harmless)
+warnings.filterwarnings("ignore", message=".*no_silent_downcasting.*")
+warnings.filterwarnings("ignore", message=".*The copy keyword is deprecated.*")
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,8 +24,31 @@ from server_config import get_server_config as sc
 from ui.chatui import ui as gradio_ui
 from ui.theme import app_css, app_theme
 
-# Create MCP HTTP App
-mcp_http_app = mcp_app.http_app(path="/")
+
+class _MCPDisconnectFilter(logging.Filter):
+    """Drop the harmless SSE-writer error MCP logs when a client disconnects.
+
+    On session termination the MCP SDK closes the standalone SSE stream while
+    its writer is still awaiting the stream, which raises ClosedResourceError.
+    The SDK logs that at ERROR level even though it is expected teardown.
+    """
+
+    _MESSAGES = {
+        "Error in standalone SSE writer",
+        "Error in standalone SSE response",
+    }
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.getMessage() not in self._MESSAGES:
+            return True
+        exc = record.exc_info[1] if record.exc_info else None
+        return not isinstance(exc, ClosedResourceError)
+
+
+logging.getLogger("mcp.server.streamable_http").addFilter(_MCPDisconnectFilter())
+
+# Create MCP HTTP App (stateless: no session or standalone SSE stream to maintain)
+mcp_http_app = mcp_app.http_app(path="/", stateless_http=True)
 
 # Create Fastapi app with MCP's Lifespan
 app = FastAPI(title="NSE Chatbot App", lifespan=mcp_http_app.lifespan)

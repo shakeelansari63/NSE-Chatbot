@@ -149,7 +149,14 @@ def get_stock_history_for_specific_range(
     if data is None:
         return None
 
-    stock_history_data = StockHistoryDataResponse.model_validate(data)
+    try:
+        stock_history_data = StockHistoryDataResponse.model_validate(data)
+    except ValidationError:
+        logger.warning(
+            "Unexpected historical data payload for symbol %s", symbol, exc_info=True
+        )
+        return None
+
     return stock_history_data.root
 
 
